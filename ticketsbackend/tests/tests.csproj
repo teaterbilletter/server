@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.0</TargetFramework>
+
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="EntityFramework" Version="6.2.0" />
+        <PackageReference Include="JWT" Version="5.0.1" />
+        <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
+        <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.9" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.0" />
+        <PackageReference Include="Mono.CSharp" Version="4.0.0.143" />
+        <PackageReference Include="MSTest.TestAdapter" Version="1.2.1" />
+        <PackageReference Include="MSTest.TestFramework" Version="1.2.1" />
+        <PackageReference Include="System.ServiceModel.Http" Version="4.5.3" />
+        <PackageReference Include="System.ServiceModel.Primitives" Version="4.5.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\src\ticketsbackend.csproj" />
+    </ItemGroup>
+</Project>
