@@ -1,7 +1,5 @@
 FROM mcr.microsoft.com/dotnet/core/aspnet:2.1 AS base
 WORKDIR /app
-EXPOSE 3107
-
 FROM mcr.microsoft.com/dotnet/core/sdk:2.1 AS build
 WORKDIR /apps
 COPY . .
@@ -15,4 +13,7 @@ RUN dotnet publish --no-restore -c Release -o /app
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app .
+ENV ASPNETCORE_URLS http://+:5000
+EXPOSE 5000
+
 ENTRYPOINT ["dotnet", "ticketsbackend.dll"]
