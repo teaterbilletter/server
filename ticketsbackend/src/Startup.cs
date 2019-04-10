@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
+using Database.DatabaseConnector;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -14,6 +17,8 @@ namespace ticketsbackend
 {
     public class Startup
     {
+        public static string ConnectionString;
+        public static string DataProviderType;
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -35,7 +40,7 @@ namespace ticketsbackend
                     Description = "The Service HTTP API"
                 });
             });
-
+            services.Configure<ConnectionConfiguration>(Configuration.GetSection("ConnectionStrings"));
             services.AddMvc();
         }
 
@@ -53,7 +58,7 @@ namespace ticketsbackend
 
             app.UseAuthentication();
             app.UseMvcWithDefaultRoute();
-
+            
             app.UseSwagger()
                 .UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "TicketService API"); });
         }

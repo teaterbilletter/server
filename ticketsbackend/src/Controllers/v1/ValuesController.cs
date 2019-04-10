@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
 using System.Threading.Tasks;
+using Database.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Mono.CSharp;
 using ticketsbackend.SoapService;
 using ticketsbackend.ViewModel;
@@ -14,12 +17,11 @@ namespace ticketsbackend.Controllers.v1
     [Route("api/v1/[controller]")]
     public class ValuesController : Controller
     {
-        
-     
-        
-    
-        
-        
+        private IConfiguration _configuration;
+        public ValuesController(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
         // GET api/values
         [HttpGet]
         public IActionResult Get([FromQuery] int pageSize = 10, [FromQuery] int pageIndex = 0)
@@ -85,11 +87,14 @@ namespace ticketsbackend.Controllers.v1
         }
 
         // DELETE api/values/5
-        [HttpDelete("{id:int}")]
-        public IActionResult Delete(int id)
+        [HttpGet("{id:int}")]
+        public IActionResult getBooking(int id)
         {
-   
-            return Ok($"{id}");
+            BookingDB bookingDb = new BookingDB(_configuration);
+
+            Booking result = bookingDb.GetBooking(id);
+            
+            return Ok(result);
         }
 
 
