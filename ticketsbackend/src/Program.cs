@@ -13,9 +13,7 @@ namespace ticketsbackend
 
         public static IWebHostBuilder CreateWebWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args).UseKestrel(options => options.AddServerHeader = false)
-                .UseStartup<Startup>().UseUrls("http://+:5000") 
+                .UseStartup<Startup>().UseUrls("http://*:5000")
                 .ConfigureAppConfiguration((builderContext, config) => { config.AddEnvironmentVariables(); });
-
     }
 }
-
