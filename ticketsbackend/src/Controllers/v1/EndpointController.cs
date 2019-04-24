@@ -4,6 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Database.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -77,6 +78,14 @@ namespace ticketsbackend.Controllers.v1
         public IActionResult Delete(int id)
         {
             return Ok($"{id}");
+        }
+        
+        // DELETE api/values/5
+        [HttpGet("{id:int}")]
+        public IActionResult getBooking(int id)
+        {
+            BookingDB con = new BookingDB();
+            return Ok();
         }
     }
 }
