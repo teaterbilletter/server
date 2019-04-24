@@ -1,8 +1,6 @@
 using System;
 using System.ComponentModel;
-using System.Configuration;
 using System.Data;
-using System.Text;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
 
@@ -12,6 +10,7 @@ namespace Database.DatabaseConnector
     {
         public static string ConnectionString;
         public static string DataProviderTypeString;
+
         public enum DataProviderType
         {
             Mysql
@@ -471,7 +470,7 @@ namespace Database.DatabaseConnector
                 ConnectionString = configuration.GetSection("ConnectionStrings")["ConnectionString"];
                 DataProviderTypeString = configuration.GetSection("ConnectionStrings")["DataProviderType"];
                 // Make sure application configuration file contains required configuration keys
-                if ( DataProviderTypeString == null || ConnectionString == null)
+                if (DataProviderTypeString == null || ConnectionString == null)
                     throw new ArgumentNullException(
                         "Please specify a 'DataProviderType' and 'ConnectionString' configuration keys in the application configuration file.");
 
