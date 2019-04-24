@@ -1,5 +1,4 @@
-﻿using System.Net.Http;
-using Microsoft.AspNetCore;
+﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 
@@ -7,21 +6,14 @@ namespace ticketsbackend
 {
     public class Program
     {
-        public static HttpClient client = new HttpClient();
-
         public static void Main(string[] args)
         {
-            BuildWebHost(args).Run();
+            CreateWebWebHostBuilder(args).Build().Run();
         }
 
-        public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
-                .ConfigureAppConfiguration((builderContext, config) =>
-                {
-                    config.AddEnvironmentVariables();
-                    
-                })
-                .Build();
+        public static IWebHostBuilder CreateWebWebHostBuilder(string[] args) =>
+            WebHost.CreateDefaultBuilder(args).UseKestrel(options => options.AddServerHeader = false)
+                .UseStartup<Startup>().UseUrls("http://*:5000")
+                .ConfigureAppConfiguration((builderContext, config) => { config.AddEnvironmentVariables(); });
     }
 }

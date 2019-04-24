@@ -1,22 +1,29 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using Database.DatabaseConnector;
+using System.IO;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace ticketsbackend
 {
     public class Startup
     {
+        public static string key = File.ReadAllText("../nginx/key.txt");
+
         public static string ConnectionString;
         public static string DataProviderType;
         public Startup(IConfiguration configuration)
@@ -29,17 +36,46 @@ namespace ticketsbackend
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
+
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+
+                        ValidIssuer = "http://+:5000",
+                        ValidAudience = "http://+:4200",
+                        IssuerSigningKey =
+                            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+                    };
+                });
+
+
             services.AddSwaggerGen(options =>
             {
                 options.DescribeAllEnumsAsStrings();
                 options.DescribeStringEnumsInCamelCase();
-                options.SwaggerDoc("v1", new Swashbuckle.AspNetCore.Swagger.Info
+                options.SwaggerDoc("v1", new Info
                 {
                     Title = "TicketService API",
                     Version = "v1",
-                    Description = "The Service HTTP API"
+                    Description = "Ticketordering by date"
                 });
             });
+            //  services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+            services.Configure<CookiePolicyOptions>(options =>
+            {
+                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+                options.CheckConsentNeeded = context => true;
+                options.MinimumSameSitePolicy = SameSiteMode.None;
+            });
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.Configure<ConnectionConfiguration>(Configuration.GetSection("ConnectionStrings"));
             services.AddMvc();
         }
@@ -50,17 +86,23 @@ namespace ticketsbackend
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
+
             var pathBase = Configuration["PATH_BASE"];
             if (!string.IsNullOrEmpty(pathBase))
             {
                 app.UsePathBase(pathBase);
             }
 
-            app.UseAuthentication();
-            app.UseMvcWithDefaultRoute();
-            
+            app.UseCors(builder =>
+                builder.WithOrigins("http://localhost:4200", "https://localhost:4443").AllowAnyHeader().AllowAnyMethod()
+                    .AllowCredentials());
+            app.UseHsts();
+            app.UseCookiePolicy();
             app.UseSwagger()
                 .UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "TicketService API"); });
+            app.UseAuthentication();
+            app.UseMvcWithDefaultRoute();
+            app.UseMvc();
         }
     }
 }

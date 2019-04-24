@@ -16,3 +16,21 @@ services:
     hostname: src
     restart: always
     logging: *default-logging
+
+  proxy:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "4443:443"
+      - "80:80"
+    depends_on:
+      - api
+    restart: always
+    volumes:
+      - ./nginx/cert.pem:/etc/nginx/cert.pem
+      - ./nginx/cert.key:/etc/nginx/cert.key
+    logging: *default-logging
+    
+
+ 

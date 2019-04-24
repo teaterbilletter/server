@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ticketsbackend.Controllers
-{
+{   
     public class HomeController : Controller
     {
-        // GET: /<controller>/
+        
         public IActionResult Index()
         {
             return new RedirectResult("~/swagger/");
