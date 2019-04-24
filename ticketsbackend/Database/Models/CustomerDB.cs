@@ -55,7 +55,7 @@ namespace Database.Models
         {
             dataAccessLayer.CreateParameters(1);
             dataAccessLayer.AddParameters(0, "CustomerID", customerID);
-            int affectedRows = dataAccessLayer.ExecuteQuery("spCreateCustomer", CommandType.StoredProcedure);
+            int affectedRows = dataAccessLayer.ExecuteQuery("spDeleteCustomer", CommandType.StoredProcedure);
             
             return affectedRows;
         }

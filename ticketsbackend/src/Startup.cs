@@ -22,7 +22,7 @@ namespace ticketsbackend
 {
     public class Startup
     {
-        public static string key = File.ReadAllText("../nginx/key.txt");
+        public static string key = File.ReadAllText("../src/key.txt");
 
         public static string ConnectionString;
         public static string DataProviderType;

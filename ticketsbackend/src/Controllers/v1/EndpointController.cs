@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Database.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using ticketsbackend.Models;
 using ticketsbackend.SoapService;
@@ -17,8 +18,13 @@ namespace ticketsbackend.Controllers.v1
     [Route("/[controller]")]
     public class EndpointController : Controller
     {
+        private IConfiguration _configuration;
+        public EndpointController(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+        
         // GET api/values/5
-
         [HttpGet, Route("GetHej")]
         public IActionResult GetById()
         {
@@ -81,11 +87,14 @@ namespace ticketsbackend.Controllers.v1
         }
         
         // DELETE api/values/5
-        [HttpGet("{id:int}")]
+        [HttpGet("{id:int}"), AllowAnonymous]
         public IActionResult getBooking(int id)
         {
-            BookingDB con = new BookingDB();
-            return Ok();
+            BookingDB bookingDb = new BookingDB(_configuration);
+
+            Booking booking = bookingDb.GetBooking(1);
+            
+            return Ok(booking);
         }
     }
 }

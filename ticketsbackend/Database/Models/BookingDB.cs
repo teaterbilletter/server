@@ -77,5 +77,14 @@ namespace Database.Models
             
             return affectedRows;
         }
+        
+        public int DeleteBooking(int bookingID)
+        {
+            dataAccessLayer.CreateParameters(1);
+            dataAccessLayer.AddParameters(0, "BookingID", bookingID);
+            int affectedRows = dataAccessLayer.ExecuteQuery("spDeleteBooking", CommandType.StoredProcedure);
+            
+            return affectedRows;
+        }
     }
 }
