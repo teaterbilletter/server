@@ -1,20 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using Database.DatabaseConnector;
 using Microsoft.Extensions.Configuration;
-using MySql.Data.MySqlClient;
 
 namespace Database.Models
 {
     public class BookingDB
     {
-        /*
-            GetBooking(BookingID)
-            GetBookings(CustomerID)
-            GetCustomer(CustomerID)
-            CreateBooking(Booking)
-            CreateCustomer(Customer)
-         */
         private DataAccessLayer.DataAccessLayerBaseClass dataAccessLayer;
         public BookingDB(IConfiguration configuration)
         {
@@ -34,15 +27,30 @@ namespace Database.Models
         /// <returns></returns>
         public Booking GetBooking(int bookingID)
         {
-            Booking b = new Booking();
-
             dataAccessLayer.CreateParameters(1);
             dataAccessLayer.AddParameters(0, "BookingID", bookingID);
             DataSet ds = dataAccessLayer.ExecuteDataSet("spGetBookingDetails", CommandType.StoredProcedure);
 
-            b.Title = ds.Tables[0].Rows[0]["Title"].ToString();
-            b.customerID = int.Parse(ds.Tables[0].Rows[0]["Customer_ID"].ToString().Trim());
-            b.date = DateTime.Parse(ds.Tables[0].Rows[0]["BookedDate"].ToString());
+            Booking b = new Booking
+            {
+                bookingID = bookingID,
+                customerID = int.Parse(ds.Tables[0].Rows[0]["Customer_ID"].ToString().Trim()),
+                date = DateTime.Parse(ds.Tables[0].Rows[0]["BookedDate"].ToString()),
+                show = new Show
+                {
+                    title = ds.Tables[0].Rows[0]["Title"].ToString(),
+                    theater = new Theater
+                    {
+                        name = ds.Tables[0].Rows[0]["Name"].ToString(),
+                        address = ds.Tables[0].Rows[0]["Address"].ToString()
+                    }
+                }
+            };
+            b.seats = new List<Seat>();
+            foreach (DataRow row in ds.Tables[1].Rows)
+            {
+                b.seats.Add(new Seat(int.Parse(row["SeatNumber"].ToString()), int.Parse(row["RowNumber"].ToString())));
+            }
             
             return b;
         }
@@ -52,25 +60,35 @@ namespace Database.Models
         /// </summary>
         /// <param name="customerID"></param>
         /// <returns></returns>
-        public DataSet GetCustomerBookings(int customerID)
+        public List<Booking> GetCustomerBookings(int customerID)
         {
-            Booking[] bookings;
+            List<Booking> bookings = new List<Booking>();
 
             dataAccessLayer.CreateParameters(1);
             dataAccessLayer.AddParameters(0, "CustomerID", customerID);
             DataSet ds = dataAccessLayer.ExecuteDataSet("spGetCustomerBookings", CommandType.StoredProcedure);
 
-            bookings = new Booking[ds.Tables[0].Rows.Count];
-
-            for (int i = 0; i < bookings.Length; i++)
+            foreach (DataRow row in ds.Tables[0].Rows)
             {
-                Booking booking = new Booking();
-                booking.Title = ds.Tables[0].Rows[0]["Title"].ToString();
-                booking.customerID = int.Parse(ds.Tables[0].Rows[0]["Customer_ID"].ToString().Trim());
-                booking.date = DateTime.Parse(ds.Tables[0].Rows[0]["BookedDate"].ToString());
+                bookings.Add(new Booking
+                    {
+                        bookingID = int.Parse(row["ID"].ToString()),
+                        date = DateTime.Parse(row["BookedDate"].ToString()),
+                        show = new Show
+                        {
+                            title = row["Title"].ToString(),
+                            theater = new Theater
+                            {
+                                name = row["Name"].ToString(),
+                                address = row["Address"].ToString()
+                            },
+                            imgUrl = row["ImgUrl"].ToString()
+                        } 
+                    }
+                );
             }
             
-            return ds;
+            return bookings;
         }
         
         /// <summary>
@@ -80,16 +98,31 @@ namespace Database.Models
         /// <returns></returns>
         public int CreateBooking(Booking booking)
         {
-            dataAccessLayer.CreateParameters(6);
-            dataAccessLayer.AddParameters(0, "CustomerID", booking.customerID);
-            dataAccessLayer.AddParameters(1, "ShowTitle", booking.show.title);
-            dataAccessLayer.AddParameters(2, "Date", booking.date);
-            dataAccessLayer.AddParameters(3, "TheaterName", booking.theater.name);
-            dataAccessLayer.AddParameters(4, "SeatStart", booking.seats[0]);
-            dataAccessLayer.AddParameters(5, "SeatEnd", booking.seats[booking.seats.Count-1]);
-            int affectedRows = dataAccessLayer.ExecuteQuery("spCreateBooking", CommandType.StoredProcedure);
+            dataAccessLayer.BeginTransaction();
+
+            try
+            {
+                dataAccessLayer.CreateParameters(7);
+                dataAccessLayer.AddParameters(0, "CustomerID", booking.customerID);
+                dataAccessLayer.AddParameters(1, "ShowTitle", booking.show.title);
+                dataAccessLayer.AddParameters(2, "BookingDate", booking.date);
+                dataAccessLayer.AddParameters(3, "TheaterName", booking.theater.name);
+                dataAccessLayer.AddParameters(4, "SeatStart", booking.seats[0].seat_number);
+                dataAccessLayer.AddParameters(5, "SeatEnd", booking.seats[booking.seats.Count-1].seat_number);
+                dataAccessLayer.AddParameters(6, "RowNumber", booking.seats[0].row_number);
             
-            return affectedRows;
+                int affectedRows = dataAccessLayer.ExecuteQuery("spCreateBooking", CommandType.StoredProcedure);
+            
+                dataAccessLayer.CommitTransaction();
+                return affectedRows;
+            }
+            catch (Exception e)
+            {
+                dataAccessLayer.RollbackTransaction();
+                Console.WriteLine(e);
+                throw;
+            }
+           
         }
         
         /// <summary>

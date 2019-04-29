@@ -5,9 +5,9 @@ namespace Database.Models
 {
     public class Booking
     {
+        public int bookingID { get; set; }
         public int customerID { get; set; }
         public List<Seat> seats { get; set; }
-        public string Title { get; set; }
         public Show show { get; set; }
         public Theater theater { get; set; }
         public DateTime date { get; set; }
@@ -17,11 +17,11 @@ namespace Database.Models
             
         }
 
-        public Booking(int customerId, List<Seat> seats, string title, Show show, Theater theater, DateTime date)
+        public Booking(int bookingId, int customerId, List<Seat> seats, Show show, Theater theater, DateTime date)
         {
-            customerID = customerId;
+            this.bookingID = bookingId;
+            this.customerID = customerId;
             this.seats = seats;
-            Title = title;
             this.show = show;
             this.theater = theater;
             this.date = date;

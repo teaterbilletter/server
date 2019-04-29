@@ -6,14 +6,11 @@ namespace Database.Models
     {
         public string name { get; set; }
         public string address { get; set; }
-        
-        public List<Hall> halls { get; set; }
 
-        public Theater(string name, string address, List<Hall> halls)
+        public Theater(string name, string address)
         {
             this.name = name;
             this.address = address;
-            this.halls = halls;
         }
 
         public Theater()
