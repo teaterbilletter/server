@@ -27,6 +27,11 @@ namespace Database.Models
             return dataAccessLayer.ExecuteDataSet("show tables;", CommandType.Text);   
         }
 
+        /// <summary>
+        /// Gets a specific booking based by booking ID
+        /// </summary>
+        /// <param name="bookingID"></param>
+        /// <returns></returns>
         public Booking GetBooking(int bookingID)
         {
             Booking b = new Booking();
@@ -42,7 +47,12 @@ namespace Database.Models
             return b;
         }
         
-        public Booking[] GetCustomerBookings(int customerID)
+        /// <summary>
+        /// Gets an overview of a customers bookings.
+        /// </summary>
+        /// <param name="customerID"></param>
+        /// <returns></returns>
+        public DataSet GetCustomerBookings(int customerID)
         {
             Booking[] bookings;
 
@@ -60,10 +70,14 @@ namespace Database.Models
                 booking.date = DateTime.Parse(ds.Tables[0].Rows[0]["BookedDate"].ToString());
             }
             
-            return bookings;
+            return ds;
         }
         
-        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="booking"></param>
+        /// <returns></returns>
         public int CreateBooking(Booking booking)
         {
             dataAccessLayer.CreateParameters(6);
@@ -78,6 +92,11 @@ namespace Database.Models
             return affectedRows;
         }
         
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="bookingID"></param>
+        /// <returns></returns>
         public int DeleteBooking(int bookingID)
         {
             dataAccessLayer.CreateParameters(1);
