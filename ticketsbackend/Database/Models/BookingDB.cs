@@ -2,29 +2,21 @@ using System;
 using System.Data;
 using Database.DatabaseConnector;
 using Microsoft.Extensions.Configuration;
-using MySql.Data.MySqlClient;
 
 namespace Database.Models
 {
     public class BookingDB
     {
-        /*
-            GetBooking(BookingID)
-            GetBookings(CustomerID)
-            GetCustomer(CustomerID)
-            CreateBooking(Booking)
-            CreateCustomer(Customer)
-         */
         private DataAccessLayer.DataAccessLayerBaseClass dataAccessLayer;
+
         public BookingDB(IConfiguration configuration)
         {
-            
             dataAccessLayer = DataAccessLayer.DataAccessLayerFactory.GetDataAccessLayer(configuration);
         }
 
         public DataSet test()
         {
-            return dataAccessLayer.ExecuteDataSet("show tables;", CommandType.Text);   
+            return dataAccessLayer.ExecuteDataSet("show tables;", CommandType.Text);
         }
 
         public Booking GetBooking(int bookingID)
@@ -38,10 +30,10 @@ namespace Database.Models
             b.Title = ds.Tables[0].Rows[0]["Title"].ToString();
             b.customerID = int.Parse(ds.Tables[0].Rows[0]["Customer_ID"].ToString().Trim());
             b.date = DateTime.Parse(ds.Tables[0].Rows[0]["BookedDate"].ToString());
-            
+
             return b;
         }
-        
+
         public Booking[] GetCustomerBookings(int customerID)
         {
             Booking[] bookings;
@@ -59,11 +51,11 @@ namespace Database.Models
                 booking.customerID = int.Parse(ds.Tables[0].Rows[0]["Customer_ID"].ToString().Trim());
                 booking.date = DateTime.Parse(ds.Tables[0].Rows[0]["BookedDate"].ToString());
             }
-            
+
             return bookings;
         }
-        
-        
+
+
         public int CreateBooking(Booking booking)
         {
             dataAccessLayer.CreateParameters(6);
@@ -72,18 +64,18 @@ namespace Database.Models
             dataAccessLayer.AddParameters(2, "Date", booking.date);
             dataAccessLayer.AddParameters(3, "TheaterName", booking.theater.name);
             dataAccessLayer.AddParameters(4, "SeatStart", booking.seats[0]);
-            dataAccessLayer.AddParameters(5, "SeatEnd", booking.seats[booking.seats.Count-1]);
+            dataAccessLayer.AddParameters(5, "SeatEnd", booking.seats[booking.seats.Count - 1]);
             int affectedRows = dataAccessLayer.ExecuteQuery("spCreateBooking", CommandType.StoredProcedure);
-            
+
             return affectedRows;
         }
-        
+
         public int DeleteBooking(int bookingID)
         {
             dataAccessLayer.CreateParameters(1);
             dataAccessLayer.AddParameters(0, "BookingID", bookingID);
             int affectedRows = dataAccessLayer.ExecuteQuery("spDeleteBooking", CommandType.StoredProcedure);
-            
+
             return affectedRows;
         }
     }
