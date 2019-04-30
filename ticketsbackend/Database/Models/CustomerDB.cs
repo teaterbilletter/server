@@ -93,7 +93,7 @@ namespace Database.Models
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e);  
                 return -1;
             }
         }
