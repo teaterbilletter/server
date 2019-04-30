@@ -17,19 +17,27 @@ services:
     restart: always
     logging: *default-logging
 
+  web:
+    build:
+      context: ./nginx2
+      dockerfile: Dockerfile
+
   proxy:
     build:
       context: ./nginx
       dockerfile: Dockerfile
     ports:
-      - "4443:443"
+      - "443:443"
       - "80:80"
+      - "5443:5443"
+
     depends_on:
       - api
+      - web
     restart: always
     volumes:
-      - ./nginx/cert.pem:/etc/nginx/cert.pem
-      - ./nginx/cert.key:/etc/nginx/cert.key
+      - /etc/letsencrypt/live/ticket.northeurope.cloudapp.azure.com/fullchain.pem:/etc/nginx/fullchain.pem
+      - /etc/letsencrypt/live/ticket.northeurope.cloudapp.azure.com/privkey.pem:/etc/nginx/privkey.pem
     logging: *default-logging
     
 
