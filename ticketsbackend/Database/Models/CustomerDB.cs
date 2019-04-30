@@ -6,10 +6,11 @@ using Microsoft.Extensions.Configuration;
 namespace Database.Models
 {
     public class CustomerDB
-    {        
+    {
         private DataAccessLayer.DataAccessLayerBaseClass dataAccessLayer;
+
         public CustomerDB(IConfiguration configuration)
-        { 
+        {
             dataAccessLayer = DataAccessLayer.DataAccessLayerFactory.GetDataAccessLayer(configuration);
         }
 
@@ -20,13 +21,11 @@ namespace Database.Models
         /// <returns></returns>
         public Customer GetCustomer(int customerID)
         {
-            
-
             dataAccessLayer.CreateParameters(1);
             dataAccessLayer.AddParameters(0, "CustomerID", customerID);
             DataSet ds = dataAccessLayer.ExecuteDataSet("spGetCustomer", CommandType.StoredProcedure);
 
-            
+
             Customer customer = new Customer
             {
                 ID = customerID,
@@ -37,10 +36,10 @@ namespace Database.Models
                 Gender = ds.Tables[0].Rows[0]["Gender"]?.ToString(),
                 Age = int.Parse(ds.Tables[0].Rows[0]["Name"]?.ToString().Trim())
             };
-            
+
             return customer;
         }
-        
+
         /// <summary>
         /// Creates a customer in the database
         /// </summary>
@@ -58,11 +57,11 @@ namespace Database.Models
                 dataAccessLayer.AddParameters(3, "Address", customer.ID);
                 dataAccessLayer.AddParameters(4, "Gender", customer.ID);
                 dataAccessLayer.AddParameters(5, "Name", customer.ID);
-                
+
                 int affectedRows = dataAccessLayer.ExecuteQuery("spCreateCustomer", CommandType.StoredProcedure);
 
                 dataAccessLayer.CommitTransaction();
-                
+
                 return affectedRows;
             }
             catch (Exception e)
@@ -71,9 +70,8 @@ namespace Database.Models
                 Console.WriteLine(e);
                 throw;
             }
-
         }
-        
+
         /// <summary>
         /// Updates information for a customer in the database
         /// </summary>
@@ -87,10 +85,10 @@ namespace Database.Models
                 dataAccessLayer.AddParameters(0, "ID", customer.ID);
                 dataAccessLayer.AddParameters(1, "Name", customer.name);
                 dataAccessLayer.AddParameters(2, "Email", customer.email);
-                dataAccessLayer.AddParameters(3, "ID", customer.phone);
-                dataAccessLayer.AddParameters(4, "ID", customer.Address);
-                dataAccessLayer.AddParameters(5, "ID", customer.Gender);
-                dataAccessLayer.AddParameters(6, "ID", customer.Age);
+                dataAccessLayer.AddParameters(3, "Phone", customer.phone);
+                dataAccessLayer.AddParameters(4, "Address", customer.Address);
+                dataAccessLayer.AddParameters(5, "Gender", customer.Gender);
+                dataAccessLayer.AddParameters(6, "Age", customer.Age);
                 return dataAccessLayer.ExecuteQuery("spUpdateCustomer", CommandType.StoredProcedure);
             }
             catch (Exception e)
@@ -99,7 +97,7 @@ namespace Database.Models
                 return -1;
             }
         }
-        
+
         /// <summary>
         /// Deletes a customer from the database
         /// </summary>

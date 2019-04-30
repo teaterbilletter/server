@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -32,6 +33,7 @@ namespace ticketsbackend.SoapService
 
 
             var xml = XDocument.Parse(responseXml);
+            Console.WriteLine(xml);
 
             // Parse Soap Response
             var soapResponse = xml.Descendants().Where(x => x.Name.LocalName == "return").Select(x => new SoapResponse

@@ -86,12 +86,12 @@ namespace ticketsbackend.Controllers.v1
             return Ok(customer);
         }
 
-        [HttpDelete("{id:int}"), AllowAnonymous]
+        [HttpDelete("{id:int}")]
         public IActionResult DeleteCustomer(int id)
         {
-            Customer customer = customerDb.GetCustomer(id);
+            customerDb.DeleteCustomer(id);
 
-            return Ok(customer);
+            return Ok();
         }
 
         [HttpPost, Route("CreateCustomer")]
