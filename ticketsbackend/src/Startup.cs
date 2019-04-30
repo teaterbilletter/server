@@ -23,9 +23,6 @@ namespace ticketsbackend
     public class Startup
     {
         public static string key = File.ReadAllText("../src/key.txt");
-
-        public static string ConnectionString;
-        public static string DataProviderType;
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -76,7 +73,6 @@ namespace ticketsbackend
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            services.Configure<ConnectionConfiguration>(Configuration.GetSection("ConnectionStrings"));
             services.AddMvc();
         }
 
