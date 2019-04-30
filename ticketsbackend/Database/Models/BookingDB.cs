@@ -92,7 +92,7 @@ namespace Database.Models
         }
         
         /// <summary>
-        /// 
+        /// Creates a new booking
         /// </summary>
         /// <param name="booking"></param>
         /// <returns></returns>
@@ -126,7 +126,7 @@ namespace Database.Models
         }
         
         /// <summary>
-        /// 
+        /// Delete a specific booking
         /// </summary>
         /// <param name="bookingID"></param>
         /// <returns></returns>
