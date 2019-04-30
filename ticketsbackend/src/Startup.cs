@@ -1,15 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Threading.Tasks;
-using Database.DatabaseConnector;
 using System.IO;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -22,7 +15,8 @@ namespace ticketsbackend
 {
     public class Startup
     {
-        public static string key = File.ReadAllText("../src/key.txt");
+        public static string key = File.ReadAllText("key.txt");
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
