@@ -41,7 +41,7 @@ namespace Database.Models
                     title = ds.Tables[0].Rows[0]["Title"].ToString(),
                     theater = new Theater
                     {
-                        name = ds.Tables[0].Rows[0]["Name"].ToString(),
+                        name = ds.Tables[0].Rows[0]["Theater"].ToString(),
                         address = ds.Tables[0].Rows[0]["Address"].ToString()
                     }
                 }
