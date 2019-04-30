@@ -42,7 +42,7 @@ namespace ticketsbackend.Controllers.v1
             return Ok();
         }
 
-        [HttpGet("getbookings/{customerid:int}")]
+        [HttpGet("getbookings/{customerid:int}"), AllowAnonymous]
         public IActionResult GetBookings(int customerid)
         {
             return Ok(bookingDb.GetCustomerBookings(customerid));

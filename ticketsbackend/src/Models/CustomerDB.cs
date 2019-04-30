@@ -34,7 +34,7 @@ namespace Database.Models
                 phone = ds.Tables[0].Rows[0]["Phone"]?.ToString(),
                 Address = ds.Tables[0].Rows[0]["Address"]?.ToString(),
                 Gender = ds.Tables[0].Rows[0]["Gender"]?.ToString(),
-                Age = int.Parse(ds.Tables[0].Rows[0]["Name"]?.ToString().Trim())
+                Age = int.Parse(ds.Tables[0].Rows[0]["Age"]?.ToString().Trim())
             };
 
             return customer;
