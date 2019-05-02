@@ -51,12 +51,12 @@ namespace Database.Models
             try
             {
                 dataAccessLayer.CreateParameters(6);
-                dataAccessLayer.AddParameters(0, "Name", customer.name);
+                dataAccessLayer.AddParameters(0, "CustomerName", customer.name);
                 dataAccessLayer.AddParameters(1, "Email", customer.email);
-                dataAccessLayer.AddParameters(2, "Phone", customer.ID);
-                dataAccessLayer.AddParameters(3, "Address", customer.ID);
-                dataAccessLayer.AddParameters(4, "Gender", customer.ID);
-                dataAccessLayer.AddParameters(5, "Name", customer.ID);
+                dataAccessLayer.AddParameters(2, "Phone", customer.phone);
+                dataAccessLayer.AddParameters(3, "Address", customer.Address);
+                dataAccessLayer.AddParameters(4, "Gender", customer.Gender);
+                dataAccessLayer.AddParameters(5, "Age", customer.Age);
 
                 int affectedRows = dataAccessLayer.ExecuteQuery("spCreateCustomer", CommandType.StoredProcedure);
 

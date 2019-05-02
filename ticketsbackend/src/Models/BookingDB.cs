@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using Database.DatabaseConnector;
 using Microsoft.Extensions.Configuration;
+using ticketsbackend.Models;
 
 namespace Database.Models
 {
@@ -39,11 +40,17 @@ namespace Database.Models
                 show = new Show
                 {
                     title = ds.Tables[0].Rows[0]["Title"].ToString(),
-                    theater = new Theater
+                    hall = new Hall
                     {
-                        name = ds.Tables[0].Rows[0]["Theater"].ToString(),
-                        address = ds.Tables[0].Rows[0]["Address"].ToString()
-                    }
+                        hallNum = int.Parse(ds.Tables[0].Rows[0]["Hall"].ToString().Trim()),
+                        theater = new Theater
+                        {
+                            name = ds.Tables[0].Rows[0]["Theater"].ToString(),
+                            address = ds.Tables[0].Rows[0]["Address"].ToString()
+                        }
+                    },
+                    imgUrl = ds.Tables[0].Rows[0]["ImgUrl"].ToString(),
+                    basePrice = decimal.Parse(ds.Tables[0].Rows[0]["BasePrice"].ToString())
                 }
             };
             b.seats = new List<Seat>();
@@ -77,12 +84,18 @@ namespace Database.Models
                         show = new Show
                         {
                             title = row["Title"].ToString(),
-                            theater = new Theater
+                            hall = new Hall
                             {
-                                name = row["Name"].ToString(),
-                                address = row["Address"].ToString()
+                                hallNum = int.Parse(row["Hall"].ToString().Trim()),
+                                theater = new Theater
+                                {
+                                    name = row["Name"].ToString(),
+                                    address = row["Address"].ToString()
+                                },
+                                
                             },
-                            imgUrl = row["ImgUrl"].ToString()
+                            imgUrl = row["ImgUrl"].ToString(),
+                            basePrice = decimal.Parse(row["BasePrice"].ToString())
                         } 
                     }
                 );
@@ -106,7 +119,7 @@ namespace Database.Models
                 dataAccessLayer.AddParameters(0, "CustomerID", booking.customerID);
                 dataAccessLayer.AddParameters(1, "ShowTitle", booking.show.title);
                 dataAccessLayer.AddParameters(2, "BookingDate", booking.date);
-                dataAccessLayer.AddParameters(3, "TheaterName", booking.theater.name);
+                dataAccessLayer.AddParameters(3, "TheaterName", booking.show.hall.theater.name);
                 dataAccessLayer.AddParameters(4, "SeatStart", booking.seats[0].seat_number);
                 dataAccessLayer.AddParameters(5, "SeatEnd", booking.seats[booking.seats.Count-1].seat_number);
                 dataAccessLayer.AddParameters(6, "RowNumber", booking.seats[0].row_number);

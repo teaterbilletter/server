@@ -20,6 +20,9 @@ namespace ticketsbackend.Controllers.v1
     {
         private CustomerDB customerDb;
         private BookingDB bookingDb;
+        private ShowDB showDb;
+        private HallDB hallDb;
+        private TheaterDB theaterDb;
 
         private List<string> admins = new List<string>
         {
@@ -27,10 +30,14 @@ namespace ticketsbackend.Controllers.v1
             "Jaafar Fadhil Abdul-Mahdi", "Jacob Nordfalk", "Monica Lund Schmidt"
         };
 
+
         public AdminController(IConfiguration configuration)
         {
             customerDb = new CustomerDB(configuration);
             bookingDb = new BookingDB(configuration);
+            showDb = new ShowDB(configuration);
+            hallDb = new HallDB(configuration);
+            theaterDb = new TheaterDB(configuration);
         }
 
         [HttpPost, AllowAnonymous, Route("login")]
@@ -65,6 +72,14 @@ namespace ticketsbackend.Controllers.v1
             }
 
             return BadRequest("Forkert brugernavn eller password");
+        }
+       
+        [HttpPost, AllowAnonymous]
+        public IActionResult CreateShow([FromBody] Show show)
+        {
+            int affectedRows = showDb.createShow(show);
+
+            return Ok(new {Response = "Rows created " + affectedRows});
         }
     }
 }

@@ -94,7 +94,7 @@ namespace ticketsbackend.Controllers.v1
             return Ok();
         }
 
-        [HttpPost, Route("CreateCustomer")]
+        [HttpPost, Route("CreateCustomer"), AllowAnonymous]
         public IActionResult CreateCustomer([FromBody] Customer customer)
         {
             if (customer == null)

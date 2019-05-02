@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ticketsbackend.Models;
 
 namespace Database.Models
 {
@@ -6,12 +7,8 @@ namespace Database.Models
     {
         public string name { get; set; }
         public string address { get; set; }
-
-        public Theater(string name, string address)
-        {
-            this.name = name;
-            this.address = address;
-        }
+        public bool active { get; set; }
+        
 
         public Theater()
         {
