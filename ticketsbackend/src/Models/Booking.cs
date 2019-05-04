@@ -12,6 +12,16 @@ namespace Database.Models
         public DateTime date { get; set; }
         public decimal totalPrice { get; set; }
 
+        public Booking(int bookingId, int customerId, List<Seat> seats, Show show, DateTime date, decimal totalPrice)
+        {
+            bookingID = bookingId;
+            customerID = customerId;
+            this.seats = seats;
+            this.show = show;
+            this.date = date;
+            this.totalPrice = totalPrice;
+        }
+
         public Booking()
         {
             

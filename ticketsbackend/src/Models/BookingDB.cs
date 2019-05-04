@@ -5,7 +5,6 @@ using Database.DatabaseConnector;
 using Microsoft.Extensions.Configuration;
 using ticketsbackend.BusinessLogic;
 using ticketsbackend.Models;
-using ticketsbackend.Models;
 
 namespace Database.Models
 {
@@ -118,7 +117,7 @@ namespace Database.Models
         /// <returns></returns>
         public int CreateBooking(Booking booking)
         {
-            decimal totalBookingPrice = priceCalculation.calculatePrice();
+            decimal totalBookingPrice = priceCalculation.calculatePrice(booking);
             dataAccessLayer.BeginTransaction();
 
             try

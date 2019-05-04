@@ -24,9 +24,9 @@ namespace ticketsbackend.Controllers.v1
         }
 
         [HttpGet("{title}")]
-        public IActionResult GetShow(string title)
+        public IActionResult GetShow(int id)
         {
-            return Ok(showDb.getShow(title));
+            return Ok(showDb.getShow(id));
         }
 
         [HttpGet("~/Theater/{theaterName}")]

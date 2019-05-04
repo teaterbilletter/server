@@ -38,15 +38,15 @@ namespace ticketsbackend.Controllers.v1
         [HttpPut("~/Show/{oldshowtitle}")]
         public IActionResult UpdateShow([FromBody] Show show, string oldshowtitle)
         {
-            showDb.updateShow(show, oldshowtitle);
+            showDb.updateShow(show);
 
             return Ok();
         }
 
         [HttpDelete("~/ShowDates/{title}")]
-        public IActionResult DeleteShowDates(string title)
+        public IActionResult DeleteShowDates(int id)
         {
-            showDb.deleteShowDates(title);
+            showDb.deleteShowDates(id);
 
             return Ok();
         }

@@ -9,10 +9,10 @@ namespace ticketsbackend.Models
         
         public Theater theater { get; set; }
 
-        public Hall(int hallNum, int[] SeatsPrRow, Theater theater)
+        public Hall(int hallNum, int[] seats, Theater theater)
         {
             this.hallNum = hallNum;
-            this.seats = SeatsPrRow;
+            this.seats = seats;
             this.theater = theater;
         }
 

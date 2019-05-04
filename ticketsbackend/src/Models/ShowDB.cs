@@ -2,9 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using Database.DatabaseConnector;
-using System.Linq;
-using Database.DatabaseConnector;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Extensions.Configuration;
 using ticketsbackend.Models;
 
@@ -50,17 +47,17 @@ namespace Database.Models
             }
         }
 
-        public int deleteShowDates(string showTitle)
+        public int deleteShowDates(int id)
         {
             dataAccessLayer.CreateParameters(1);
-            dataAccessLayer.AddParameters(0, "Title", showTitle);
+            dataAccessLayer.AddParameters(0, "ShowID", id);
             return dataAccessLayer.ExecuteQuery("spDeleteShowDates", CommandType.StoredProcedure);
         }
 
-        public int updateShow(Show show, string oldTitle = null)
+        public int updateShow(Show show)
         {      
             
-            dataAccessLayer.CreateParameters(6);
+            dataAccessLayer.CreateParameters(5);
             dataAccessLayer.AddParameters(0, "Title", show.title);
             dataAccessLayer.AddParameters(1, "ImgUrl", show.imgUrl);
             dataAccessLayer.AddParameters(2, "Hall_ID", show.hall.hallNum);
@@ -71,14 +68,13 @@ namespace Database.Models
                 
             dataAccessLayer.AddParameters(3, "Dates", dates);
             dataAccessLayer.AddParameters(4, "Active", show.active);
-            dataAccessLayer.AddParameters(5, "OldTitle", oldTitle ?? show.title);
             return dataAccessLayer.ExecuteQuery("spUpdateShow", CommandType.StoredProcedure);
         }
 
-        public Show getShow(string title)
+        public Show getShow(int id)
         {
             dataAccessLayer.CreateParameters(1);
-            dataAccessLayer.AddParameters(0, "Title", title);
+            dataAccessLayer.AddParameters(0, "ShowID", id);
             DataSet ds = dataAccessLayer.ExecuteDataSet("spGetShow", CommandType.StoredProcedure);
 
             Show show = new Show
@@ -120,7 +116,6 @@ namespace Database.Models
                     imgUrl = dr["ImgUrl"].ToString(),
                     hall = new Hall
                     {
-                        hallNum = int.Parse(dr["Hall_ID"].ToString()),
                         //var Hall_ID
                         hallNum = int.Parse(dr["ID"].ToString()),
                         theater = new Theater
