@@ -3,7 +3,6 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/core/sdk:2.1 AS build
 WORKDIR /apps
 COPY . .
-WORKDIR /apps
 RUN dotnet restore -nowarn:msb3202,nu1503
 RUN dotnet build --no-restore -c Release -o /app
 
@@ -13,6 +12,7 @@ RUN dotnet publish --no-restore -c Release -o /app
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app .
+COPY key.txt /app
 ENV ASPNETCORE_URLS http://+:5000
 EXPOSE 5000
 

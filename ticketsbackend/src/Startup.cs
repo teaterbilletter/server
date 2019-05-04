@@ -1,15 +1,9 @@
-using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Threading.Tasks;
-using Database.DatabaseConnector;
 using System.IO;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -22,7 +16,9 @@ namespace ticketsbackend
 {
     public class Startup
     {
-        public static string key = File.ReadAllText("../src/key.txt");
+        public static string key = File.ReadAllText("key.txt");
+
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -47,7 +43,7 @@ namespace ticketsbackend
                         ValidateIssuerSigningKey = true,
 
                         ValidIssuer = "http://+:5000",
-                        ValidAudience = "http://+:4200",
+                        ValidAudience = "http://+",
                         IssuerSigningKey =
                             new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
                     };
@@ -56,6 +52,17 @@ namespace ticketsbackend
 
             services.AddSwaggerGen(options =>
             {
+                options.AddSecurityDefinition("Bearer", new ApiKeyScheme
+                {
+                    Name = "Authorization",
+                    In = "header",
+                    Type = "apiKey"
+                });
+
+                options.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
+                {
+                    {"Bearer", new string[] { }}
+                });
                 options.DescribeAllEnumsAsStrings();
                 options.DescribeStringEnumsInCamelCase();
                 options.SwaggerDoc("v1", new Info
@@ -90,12 +97,17 @@ namespace ticketsbackend
             }
 
             app.UseCors(builder =>
-                builder.WithOrigins("http://localhost:4200", "https://localhost:4443").AllowAnyHeader().AllowAnyMethod()
+                builder.WithOrigins("http://localhost:4200", "https://localhost:4443").AllowAnyOrigin().AllowAnyHeader()
+                    .AllowAnyMethod()
                     .AllowCredentials());
             app.UseHsts();
             app.UseCookiePolicy();
             app.UseSwagger()
-                .UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "TicketService API"); });
+                .UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "TicketService API");
+                    c.RoutePrefix = string.Empty;
+                });
             app.UseAuthentication();
             app.UseMvcWithDefaultRoute();
             app.UseMvc();

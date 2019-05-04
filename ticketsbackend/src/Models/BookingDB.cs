@@ -5,6 +5,7 @@ using Database.DatabaseConnector;
 using Microsoft.Extensions.Configuration;
 using ticketsbackend.BusinessLogic;
 using ticketsbackend.Models;
+using ticketsbackend.Models;
 
 namespace Database.Models
 {

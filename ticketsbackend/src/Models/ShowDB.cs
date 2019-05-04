@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using Database.DatabaseConnector;
 using System.Linq;
 using Database.DatabaseConnector;
 using Microsoft.CodeAnalysis.CSharp;
@@ -35,8 +36,8 @@ namespace Database.Models
                 
                 dataAccessLayer.AddParameters(3, "Dates", dates);
                 int affectedRows = dataAccessLayer.ExecuteQuery("spCreateShow", CommandType.StoredProcedure);
-                
-                
+
+
                 dataAccessLayer.CommitTransaction();
                 
                 return affectedRows;
@@ -49,8 +50,7 @@ namespace Database.Models
             }
         }
 
-        
-        public int deleteShowDates(int showTitle)
+        public int deleteShowDates(string showTitle)
         {
             dataAccessLayer.CreateParameters(1);
             dataAccessLayer.AddParameters(0, "Title", showTitle);
@@ -121,6 +121,8 @@ namespace Database.Models
                     hall = new Hall
                     {
                         hallNum = int.Parse(dr["Hall_ID"].ToString()),
+                        //var Hall_ID
+                        hallNum = int.Parse(dr["ID"].ToString()),
                         theater = new Theater
                         {
                             address = dr["Address"].ToString(),
