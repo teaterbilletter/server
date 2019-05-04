@@ -4,26 +4,16 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Database.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using ticketsbackend.Models;
 using ticketsbackend.SoapService;
 
 namespace ticketsbackend.Controllers.v1
 {
-    [Authorize]
     [Route("/[controller]")]
-    public class AdminController : Controller
+    public class AuthenticateController : Controller
     {
-        private CustomerDB customerDb;
-        private BookingDB bookingDb;
-        private ShowDB showDb;
-        private HallDB hallDb;
-        private TheaterDB theaterDb;
-
         private List<string> admins = new List<string>
         {
             "Emil Glimø Vinkel", "Frederik Egegaard Hjorth", "Rasmus Kromann Hjorth", "Nicolas Kaveh Vahman",
@@ -31,16 +21,7 @@ namespace ticketsbackend.Controllers.v1
         };
 
 
-        public AdminController(IConfiguration configuration)
-        {
-            customerDb = new CustomerDB(configuration);
-            bookingDb = new BookingDB(configuration);
-            showDb = new ShowDB(configuration);
-            hallDb = new HallDB(configuration);
-            theaterDb = new TheaterDB(configuration);
-        }
-
-        [HttpPost, AllowAnonymous, Route("login")]
+        [HttpPost, Route("~/Login")]
         public async Task<IActionResult> Login([FromBody] Login login)
         {
             if (login == null)
@@ -51,9 +32,9 @@ namespace ticketsbackend.Controllers.v1
             var log = await CheckUserWithSoap.SoapEnvelope(login.Name, login.Password);
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Role, login.Name)
+                new Claim(ClaimTypes.Name, login.Name)
             };
-            Console.WriteLine(log);
+
             if (admins.Contains(log))
             {
                 var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Startup.key));
@@ -61,7 +42,7 @@ namespace ticketsbackend.Controllers.v1
 
                 var tokeOptions = new JwtSecurityToken(
                     "http://+:5000",
-                    "http://+:4200",
+                    "http://+",
                     claims,
                     expires: DateTime.Now.AddHours(1),
                     signingCredentials: signinCredentials
@@ -72,14 +53,6 @@ namespace ticketsbackend.Controllers.v1
             }
 
             return BadRequest("Forkert brugernavn eller password");
-        }
-       
-        [HttpPost, AllowAnonymous]
-        public IActionResult CreateShow([FromBody] Show show)
-        {
-            int affectedRows = showDb.createShow(show);
-
-            return Ok(new {Response = "Rows created " + affectedRows});
         }
     }
 }

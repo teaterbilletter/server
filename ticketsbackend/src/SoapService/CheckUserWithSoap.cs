@@ -11,6 +11,11 @@ namespace ticketsbackend.SoapService
     {
         public static async Task<string> SoapEnvelope(string name, string password)
         {
+            if (name.Contains(">") || name.Contains("<") || password.Contains(">") || password.Contains("<"))
+            {
+                return "Kodeord eller Brugernavn indeholder ikke tilladte tegn";
+            }
+
             string soapString = @"<?xml version=""1.0"" encoding=""utf-8""?>
           <soap:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" 
             xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" 

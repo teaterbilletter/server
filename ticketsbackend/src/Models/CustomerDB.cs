@@ -29,7 +29,7 @@ namespace Database.Models
             Customer customer = new Customer
             {
                 ID = customerID,
-                name = ds.Tables[0].Rows[0]["Name"].ToString(),
+                name = ds.Tables[0].Rows[0]["CustomerName"].ToString(),
                 email = ds.Tables[0].Rows[0]["Mail"].ToString().Trim(),
                 phone = ds.Tables[0].Rows[0]["Phone"]?.ToString(),
                 Address = ds.Tables[0].Rows[0]["Address"]?.ToString(),
@@ -93,7 +93,7 @@ namespace Database.Models
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);  
+                Console.WriteLine(e);
                 return -1;
             }
         }

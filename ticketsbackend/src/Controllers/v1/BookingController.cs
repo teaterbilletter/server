@@ -9,7 +9,7 @@ namespace ticketsbackend.Controllers.v1
     [Route("/[controller]")]
     public class BookingController : Controller
     {
-        private BookingDB bookingDb;
+        private readonly BookingDB bookingDb;
 
         public BookingController(IConfiguration configuration)
         {
@@ -17,21 +17,19 @@ namespace ticketsbackend.Controllers.v1
         }
 
 
-        [HttpGet("{id:int}"), AllowAnonymous]
-        public IActionResult GetBooking(int id)
+        [HttpGet("{bookingid:int}")]
+        public IActionResult GetBooking(int bookingid)
         {
-            Booking booking = bookingDb.GetBooking(id);
-
-            return Ok(booking);
+            return Ok(bookingDb.GetBooking(bookingid));
         }
 
 
-        [HttpDelete("{id:int}")]
-        public IActionResult DeleteBooking(int id)
+        [HttpDelete("{bookingid:int}")]
+        public IActionResult DeleteBooking(int bookingid)
         {
-            bookingDb.DeleteBooking(id);
+            bookingDb.DeleteBooking(bookingid);
 
-            return Ok(new {Response = "Booking" + id + "Slettet"});
+            return Ok();
         }
 
         [HttpPost]
@@ -42,7 +40,7 @@ namespace ticketsbackend.Controllers.v1
             return Ok();
         }
 
-        [HttpGet("getbookings/{customerid:int}"), AllowAnonymous]
+        [HttpGet("~/Bookings/{customerid:int}")]
         public IActionResult GetBookings(int customerid)
         {
             return Ok(bookingDb.GetCustomerBookings(customerid));
