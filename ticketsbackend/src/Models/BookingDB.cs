@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using Database.DatabaseConnector;
 using Microsoft.Extensions.Configuration;
+using ticketsbackend.BusinessLogic;
 using ticketsbackend.Models;
 
 namespace Database.Models
@@ -10,9 +11,11 @@ namespace Database.Models
     public class BookingDB
     {
         private DataAccessLayer.DataAccessLayerBaseClass dataAccessLayer;
+        private PriceCalculation priceCalculation;
+
         public BookingDB(IConfiguration configuration)
         {
-            
+            priceCalculation = new PriceCalculation();
             dataAccessLayer = DataAccessLayer.DataAccessLayerFactory.GetDataAccessLayer(configuration);
         }
 
@@ -51,7 +54,8 @@ namespace Database.Models
                     },
                     imgUrl = ds.Tables[0].Rows[0]["ImgUrl"].ToString(),
                     basePrice = decimal.Parse(ds.Tables[0].Rows[0]["BasePrice"].ToString())
-                }
+                },
+                totalPrice = decimal.Parse(ds.Tables[0].Rows[0]["TotalPrice"].ToString())
             };
             b.seats = new List<Seat>();
             foreach (DataRow row in ds.Tables[1].Rows)
@@ -96,7 +100,9 @@ namespace Database.Models
                             },
                             imgUrl = row["ImgUrl"].ToString(),
                             basePrice = decimal.Parse(row["BasePrice"].ToString())
-                        } 
+                        },
+                        totalPrice = decimal.Parse(row["TotalPrice"].ToString()),
+                        customerID = customerID
                     }
                 );
             }
@@ -111,11 +117,13 @@ namespace Database.Models
         /// <returns></returns>
         public int CreateBooking(Booking booking)
         {
+            decimal totalBookingPrice = priceCalculation.calculatePrice();
             dataAccessLayer.BeginTransaction();
 
             try
             {
-                dataAccessLayer.CreateParameters(7);
+                
+                dataAccessLayer.CreateParameters(8);
                 dataAccessLayer.AddParameters(0, "CustomerID", booking.customerID);
                 dataAccessLayer.AddParameters(1, "ShowTitle", booking.show.title);
                 dataAccessLayer.AddParameters(2, "BookingDate", booking.date);
@@ -123,6 +131,7 @@ namespace Database.Models
                 dataAccessLayer.AddParameters(4, "SeatStart", booking.seats[0].seat_number);
                 dataAccessLayer.AddParameters(5, "SeatEnd", booking.seats[booking.seats.Count-1].seat_number);
                 dataAccessLayer.AddParameters(6, "RowNumber", booking.seats[0].row_number);
+                dataAccessLayer.AddParameters(7, "TotalPrice", totalBookingPrice);
             
                 int affectedRows = dataAccessLayer.ExecuteQuery("spCreateBooking", CommandType.StoredProcedure);
             

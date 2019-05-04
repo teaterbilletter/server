@@ -10,6 +10,7 @@ namespace Database.Models
         public List<Seat> seats { get; set; }
         public Show show { get; set; }
         public DateTime date { get; set; }
+        public decimal totalPrice { get; set; }
 
         public Booking()
         {
