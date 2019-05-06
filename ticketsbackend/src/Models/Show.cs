@@ -14,9 +14,9 @@ namespace Database.Models
         public decimal basePrice { get; set; }
         public bool active { get; set; } = true;
         
-        public string desciption { get; set; }
+        public string description { get; set; }
 
-        public Show(int id, string title, List<DateTime> dates, Hall hall, string imgUrl, decimal basePrice, string desciption)
+        public Show(int id, string title, List<DateTime> dates, Hall hall, string imgUrl, decimal basePrice, string description)
         {
             ID = id;
             this.title = title;
@@ -24,7 +24,7 @@ namespace Database.Models
             this.hall = hall;
             this.imgUrl = imgUrl;
             this.basePrice = basePrice;
-            this.desciption = desciption;
+            this.description = description;
         }
 
         public Show()

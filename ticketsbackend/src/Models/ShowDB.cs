@@ -110,7 +110,7 @@ namespace Database.Models
                     seats = int.Parse(ds.Tables[2].Rows[0]["SeatCount"].ToString())
                 },
                 basePrice = decimal.Parse(ds.Tables[0].Rows[0]["BasePrice"].ToString()),
-                desciption = ds.Tables[0].Rows[0]["Description"].ToString()
+                description = ds.Tables[0].Rows[0]["Description"].ToString()
             };
 
             show.dates = new List<DateTime>();
@@ -134,7 +134,7 @@ namespace Database.Models
                     ID = int.Parse(dr["ID"].ToString()),
                     title = dr["Title"].ToString(),
                     imgUrl = dr["ImgUrl"].ToString(),
-                    desciption = dr["Description"].ToString(),
+                    description = dr["Description"].ToString(),
                     hall = new Hall
                     {
                         //var Hall_ID
