@@ -1,6 +1,8 @@
+using System;
 using Database.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using ticketsbackend.Models;
 
 namespace ticketsbackend.Controllers.v1
 {
@@ -23,7 +25,7 @@ namespace ticketsbackend.Controllers.v1
             return Ok(showDb.getAllShows());
         }
 
-        [HttpGet("{title}")]
+        [HttpGet("{id:int}")]
         public IActionResult GetShow(int id)
         {
             return Ok(showDb.getShow(id));
@@ -33,6 +35,11 @@ namespace ticketsbackend.Controllers.v1
         public IActionResult GetTheater(string theaterName)
         {
             return Ok(theaterDb.getTheater(theaterName));
+        }
+
+        public IActionResult GetOccupiedSeats(DateTime dateTime, int ShowID)
+        {
+            return Ok(showDb.getOccupiedSeats(dateTime, ShowID));
         }
     }
 }

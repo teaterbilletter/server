@@ -21,7 +21,7 @@ namespace Database.Models
             {
                 dataAccessLayer.BeginTransaction();
 
-                dataAccessLayer.CreateParameters(4);
+                dataAccessLayer.CreateParameters(5);
                 dataAccessLayer.AddParameters(0, "Title", show.title);
                 dataAccessLayer.AddParameters(1, "ImgUrl", show.imgUrl);
                 dataAccessLayer.AddParameters(2, "Hall_ID", show.hall.hallNum);
@@ -32,6 +32,7 @@ namespace Database.Models
                 string dates = string.Join(",", date_strings);
                 
                 dataAccessLayer.AddParameters(3, "Dates", dates);
+                dataAccessLayer.AddParameters(4, "basePrice", show.basePrice);
                 int affectedRows = dataAccessLayer.ExecuteQuery("spCreateShow", CommandType.StoredProcedure);
 
 
@@ -55,20 +56,34 @@ namespace Database.Models
         }
 
         public int updateShow(Show show)
-        {      
+        {
+            try
+            {
+                dataAccessLayer.BeginTransaction();
+                dataAccessLayer.CreateParameters(7);
+                dataAccessLayer.AddParameters(0, "ShowID", show.ID);
+                dataAccessLayer.AddParameters(1, "Title", show.title);
+                dataAccessLayer.AddParameters(2, "ImgUrl", show.imgUrl);
+                dataAccessLayer.AddParameters(3, "Hall_ID", show.hall.hallNum);
+                
+                List<string> date_strings = new List<string>();
+                show.dates.ForEach(d => date_strings.Add(d.ToString("yyyy-MM-dd hh:mm:ss")));
+                string dates = string.Join(",", date_strings);
+                
+                dataAccessLayer.AddParameters(4, "Dates", dates);
+                dataAccessLayer.AddParameters(5, "Active", show.active);
+                dataAccessLayer.AddParameters(6, "basePrice", show.basePrice);
+                int affectedRows = dataAccessLayer.ExecuteQuery("spUpdateShow", CommandType.StoredProcedure);
             
-            dataAccessLayer.CreateParameters(5);
-            dataAccessLayer.AddParameters(0, "Title", show.title);
-            dataAccessLayer.AddParameters(1, "ImgUrl", show.imgUrl);
-            dataAccessLayer.AddParameters(2, "Hall_ID", show.hall.hallNum);
-                
-            List<string> date_strings = new List<string>();
-            show.dates.ForEach(d => date_strings.Add(d.ToString("yyyy-MM-dd hh:mm:ss")));
-            string dates = string.Join(",", date_strings);
-                
-            dataAccessLayer.AddParameters(3, "Dates", dates);
-            dataAccessLayer.AddParameters(4, "Active", show.active);
-            return dataAccessLayer.ExecuteQuery("spUpdateShow", CommandType.StoredProcedure);
+                dataAccessLayer.CommitTransaction();
+
+                return affectedRows;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         public Show getShow(int id)
@@ -89,8 +104,11 @@ namespace Database.Models
                     {
                         address = ds.Tables[0].Rows[0]["Address"].ToString(),
                         name = ds.Tables[0].Rows[0]["Theater"].ToString()
-                    }
-                }
+                    },
+                    rows = int.Parse(ds.Tables[2].Rows[0]["RowCount"].ToString()),
+                    seats = int.Parse(ds.Tables[2].Rows[0]["SeatCount"].ToString())
+                }, basePrice = decimal.Parse(ds.Tables[0].Rows[0]["BasePrice"].ToString()),
+                desciption = ds.Tables[0].Rows[0]["Description"].ToString()
             };
             
             show.dates = new List<DateTime>();
@@ -114,6 +132,7 @@ namespace Database.Models
                     ID = int.Parse(dr["ID"].ToString()),
                     title = dr["Title"].ToString(),
                     imgUrl = dr["ImgUrl"].ToString(),
+                    desciption = dr["Description"].ToString(),
                     hall = new Hall
                     {
                         //var Hall_ID
@@ -127,6 +146,29 @@ namespace Database.Models
                 });
             }
             return shows;
+        }
+        
+        public List<Seat> getOccupiedSeats(DateTime dateTime, int ShowID)
+        {
+            dataAccessLayer.CreateParameters(1);
+            dataAccessLayer.AddParameters(0, "ShowDate", dateTime);
+            dataAccessLayer.AddParameters(1, "ShowID", ShowID);
+            DataSet ds = dataAccessLayer.ExecuteDataSet("spGetBookedSeats", CommandType.StoredProcedure);
+            
+            
+            List<Seat> seats = new List<Seat>();
+
+            foreach (DataRow dataRow in ds.Tables[0].Rows)
+            {
+                seats.Add(new Seat
+                {
+                    row_number = int.Parse(dataRow["RowNumber"].ToString()),
+                    seat_number = int.Parse(dataRow["SeatNumber"].ToString())
+                });
+            }
+            
+            
+            return seats;
         }
     }
 }

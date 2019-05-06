@@ -6,11 +6,10 @@ namespace ticketsbackend.BusinessLogic
     public class PriceCalculation
     {
 
-        public decimal calculatePrice(Booking booking)
+        public decimal calculatePrice(Booking booking, decimal basePrice)
         {
             decimal multiplication = 2;
             int amountOfSeats = booking.seats.Count;
-            decimal basePrice = booking.show.basePrice;
 
 
             //Some days are more expensive than others

@@ -81,15 +81,19 @@ namespace Database.Models
         {
             try
             {
+                dataAccessLayer.BeginTransaction();
                 dataAccessLayer.CreateParameters(7);
-                dataAccessLayer.AddParameters(0, "ID", customer.ID);
-                dataAccessLayer.AddParameters(1, "Name", customer.name);
+                dataAccessLayer.AddParameters(0, "CustomerID", customer.ID);
+                dataAccessLayer.AddParameters(1, "CustomerName", customer.name);
                 dataAccessLayer.AddParameters(2, "Email", customer.email);
                 dataAccessLayer.AddParameters(3, "Phone", customer.phone);
                 dataAccessLayer.AddParameters(4, "Address", customer.Address);
                 dataAccessLayer.AddParameters(5, "Gender", customer.Gender);
                 dataAccessLayer.AddParameters(6, "Age", customer.Age);
-                return dataAccessLayer.ExecuteQuery("spUpdateCustomer", CommandType.StoredProcedure);
+                int affectedRows = dataAccessLayer.ExecuteQuery("spUpdateCustomer", CommandType.StoredProcedure);
+                
+                dataAccessLayer.CommitTransaction();
+                return affectedRows;
             }
             catch (Exception e)
             {

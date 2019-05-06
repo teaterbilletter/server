@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using Database.DatabaseConnector;
+using MessagePack.Resolvers;
 using Microsoft.Extensions.Configuration;
 using ticketsbackend.BusinessLogic;
 using ticketsbackend.Models;
@@ -10,18 +11,15 @@ namespace Database.Models
 {
     public class BookingDB
     {
-        private DataAccessLayer.DataAccessLayerBaseClass dataAccessLayer;
-        private PriceCalculation priceCalculation;
-
+        private readonly DataAccessLayer.DataAccessLayerBaseClass dataAccessLayer;
+        private readonly PriceCalculation priceCalculation;
+        private readonly ShowDB showDb;
+        
         public BookingDB(IConfiguration configuration)
         {
             priceCalculation = new PriceCalculation();
             dataAccessLayer = DataAccessLayer.DataAccessLayerFactory.GetDataAccessLayer(configuration);
-        }
-
-        public DataSet test()
-        {
-            return dataAccessLayer.ExecuteDataSet("show tables;", CommandType.Text);   
+            showDb = new ShowDB(configuration);
         }
 
         /// <summary>
@@ -42,6 +40,7 @@ namespace Database.Models
                 date = DateTime.Parse(ds.Tables[0].Rows[0]["BookedDate"].ToString()),
                 show = new Show
                 {
+                    ID = int.Parse(ds.Tables[0].Rows[0]["ShowID"].ToString()),
                     title = ds.Tables[0].Rows[0]["Title"].ToString(),
                     hall = new Hall
                     {
@@ -117,11 +116,13 @@ namespace Database.Models
         /// <returns></returns>
         public int CreateBooking(Booking booking)
         {
-            decimal totalBookingPrice = priceCalculation.calculatePrice(booking);
+            
             dataAccessLayer.BeginTransaction();
 
             try
             {
+                decimal basePrice = showDb.getShow(booking.show.ID).basePrice;
+                decimal totalBookingPrice = priceCalculation.calculatePrice(booking, basePrice);
                 
                 dataAccessLayer.CreateParameters(8);
                 dataAccessLayer.AddParameters(0, "CustomerID", booking.customerID);
@@ -133,10 +134,10 @@ namespace Database.Models
                 dataAccessLayer.AddParameters(6, "RowNumber", booking.seats[0].row_number);
                 dataAccessLayer.AddParameters(7, "TotalPrice", totalBookingPrice);
             
-                int affectedRows = dataAccessLayer.ExecuteQuery("spCreateBooking", CommandType.StoredProcedure);
+                var customerID = dataAccessLayer.ExecuteScalar("spCreateBooking", CommandType.StoredProcedure);
             
                 dataAccessLayer.CommitTransaction();
-                return affectedRows;
+                return int.Parse(customerID.ToString().Trim());
             }
             catch (Exception e)
             {
@@ -154,11 +155,39 @@ namespace Database.Models
         /// <returns></returns>
         public int DeleteBooking(int bookingID)
         {
-            dataAccessLayer.CreateParameters(1);
-            dataAccessLayer.AddParameters(0, "BookingID", bookingID);
-            int affectedRows = dataAccessLayer.ExecuteQuery("spDeleteBooking", CommandType.StoredProcedure);
+            try
+            {
+                dataAccessLayer.BeginTransaction();
+                
+                dataAccessLayer.CreateParameters(1);
+                dataAccessLayer.AddParameters(0, "BookingID", bookingID);
+                int affectedRows = dataAccessLayer.ExecuteQuery("spDeleteBooking", CommandType.StoredProcedure);
+
+                dataAccessLayer.CommitTransaction();
+                return affectedRows;
+            }
+            catch (Exception e)
+            {
+                dataAccessLayer.RollbackTransaction();
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+
+        /// <summary>
+        /// Creates a new booking
+        /// </summary>
+        /// <param name="booking"></param>
+        /// <returns></returns>
+        public Booking MakeTempBooking(Booking booking)
+        {
+            decimal basePrice = showDb.getShow(booking.show.ID).basePrice;
+            decimal totalBookingPrice = priceCalculation.calculatePrice(booking, basePrice);
+
+            booking.totalPrice = totalBookingPrice;
             
-            return affectedRows;
+            return booking;
         }
     }
 }

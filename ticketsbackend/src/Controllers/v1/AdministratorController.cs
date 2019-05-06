@@ -35,8 +35,8 @@ namespace ticketsbackend.Controllers.v1
             return Ok();
         }
 
-        [HttpPut("~/Show/{oldshowtitle}")]
-        public IActionResult UpdateShow([FromBody] Show show, string oldshowtitle)
+        [HttpPut("~/Show")]
+        public IActionResult UpdateShow([FromBody] Show show)
         {
             showDb.updateShow(show);
 

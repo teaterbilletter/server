@@ -21,9 +21,10 @@ namespace Database.Models
             {
                 dataAccessLayer.BeginTransaction();
                 
-                dataAccessLayer.CreateParameters(2);
+                dataAccessLayer.CreateParameters(3);
                 dataAccessLayer.AddParameters(0, "Theater", theater.name);
                 dataAccessLayer.AddParameters(1, "Address", theater.address);
+                dataAccessLayer.AddParameters(2, "Active", theater.active);
                 int affectedRows = dataAccessLayer.ExecuteQuery("spCreateTheater", CommandType.StoredProcedure);
 
                 

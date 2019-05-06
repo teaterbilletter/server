@@ -19,10 +19,11 @@ namespace ticketsbackend.Models
             {
                 dataAccessLayer.BeginTransaction();
                 
-                dataAccessLayer.CreateParameters(3);
+                dataAccessLayer.CreateParameters(4);
                 dataAccessLayer.AddParameters(0, "HallNum", hall.hallNum);
                 dataAccessLayer.AddParameters(1, "Theater", hall.theater.name);
-                dataAccessLayer.AddParameters(2, "Seats", string.Join(",", hall.seats));
+                dataAccessLayer.AddParameters(2, "SeatCount", hall.seats);
+                dataAccessLayer.AddParameters(3, "RowCount", hall.rows);
                 int affectedRows = dataAccessLayer.ExecuteQuery("spCreateHall", CommandType.StoredProcedure);
 
                 
