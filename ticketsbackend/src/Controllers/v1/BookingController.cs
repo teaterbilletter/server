@@ -2,7 +2,6 @@ using Database.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using ticketsbackend.BusinessLogic;
 
 namespace ticketsbackend.Controllers.v1
 {
@@ -39,18 +38,18 @@ namespace ticketsbackend.Controllers.v1
             int bookingID = bookingDb.CreateBooking(booking);
 
             Booking createdBooking = bookingDb.GetBooking(bookingID);
-                
+
 
             return Ok(createdBooking);
         }
 
-        [HttpGet("~/Bookings/{customerid:int}")]
+        [HttpGet("~/Bookings/{customerid}")]
         public IActionResult GetBookings(int customerid)
         {
             return Ok(bookingDb.GetCustomerBookings(customerid));
         }
-        
-        [HttpGet("~/Bookings/{customerid:int}")]
+
+        [HttpPost("~/Bookings")]
         public IActionResult MakeTempBooking([FromBody] Booking booking)
         {
             return Ok(bookingDb.MakeTempBooking(booking));

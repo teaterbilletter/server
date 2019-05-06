@@ -8,13 +8,14 @@ using ticketsbackend.Models;
 namespace Database.Models
 {
     public class ShowDB
-    {        
+    {
         private DataAccessLayer.DataAccessLayerBaseClass dataAccessLayer;
+
         public ShowDB(IConfiguration configuration)
         {
             dataAccessLayer = DataAccessLayer.DataAccessLayerFactory.GetDataAccessLayer(configuration);
         }
-        
+
         public int createShow(Show show)
         {
             try
@@ -25,19 +26,19 @@ namespace Database.Models
                 dataAccessLayer.AddParameters(0, "Title", show.title);
                 dataAccessLayer.AddParameters(1, "ImgUrl", show.imgUrl);
                 dataAccessLayer.AddParameters(2, "Hall_ID", show.hall.hallNum);
-                
-                
+
+
                 List<string> date_strings = new List<string>();
                 show.dates.ForEach(d => date_strings.Add(d.ToString("yyyy-MM-dd hh:mm:ss")));
                 string dates = string.Join(",", date_strings);
-                
+
                 dataAccessLayer.AddParameters(3, "Dates", dates);
                 dataAccessLayer.AddParameters(4, "basePrice", show.basePrice);
                 int affectedRows = dataAccessLayer.ExecuteQuery("spCreateShow", CommandType.StoredProcedure);
 
 
                 dataAccessLayer.CommitTransaction();
-                
+
                 return affectedRows;
             }
             catch (Exception e)
@@ -65,16 +66,16 @@ namespace Database.Models
                 dataAccessLayer.AddParameters(1, "Title", show.title);
                 dataAccessLayer.AddParameters(2, "ImgUrl", show.imgUrl);
                 dataAccessLayer.AddParameters(3, "Hall_ID", show.hall.hallNum);
-                
+
                 List<string> date_strings = new List<string>();
                 show.dates.ForEach(d => date_strings.Add(d.ToString("yyyy-MM-dd hh:mm:ss")));
                 string dates = string.Join(",", date_strings);
-                
+
                 dataAccessLayer.AddParameters(4, "Dates", dates);
                 dataAccessLayer.AddParameters(5, "Active", show.active);
                 dataAccessLayer.AddParameters(6, "basePrice", show.basePrice);
                 int affectedRows = dataAccessLayer.ExecuteQuery("spUpdateShow", CommandType.StoredProcedure);
-            
+
                 dataAccessLayer.CommitTransaction();
 
                 return affectedRows;
@@ -107,16 +108,17 @@ namespace Database.Models
                     },
                     rows = int.Parse(ds.Tables[2].Rows[0]["RowCount"].ToString()),
                     seats = int.Parse(ds.Tables[2].Rows[0]["SeatCount"].ToString())
-                }, basePrice = decimal.Parse(ds.Tables[0].Rows[0]["BasePrice"].ToString()),
+                },
+                basePrice = decimal.Parse(ds.Tables[0].Rows[0]["BasePrice"].ToString()),
                 desciption = ds.Tables[0].Rows[0]["Description"].ToString()
             };
-            
+
             show.dates = new List<DateTime>();
             foreach (DataRow dr in ds.Tables[1].Rows)
             {
                 show.dates.Add(DateTime.Parse(dr["ShowDate"].ToString()));
             }
-            
+
             return show;
         }
 
@@ -124,7 +126,7 @@ namespace Database.Models
         {
             DataTable dt = dataAccessLayer.ExecuteDataSet("spGetAllShows", CommandType.StoredProcedure).Tables[0];
             List<Show> shows = new List<Show>();
-            
+
             foreach (DataRow dr in dt.Rows)
             {
                 shows.Add(new Show
@@ -145,17 +147,18 @@ namespace Database.Models
                     }
                 });
             }
+
             return shows;
         }
-        
+
         public List<Seat> getOccupiedSeats(DateTime dateTime, int ShowID)
         {
-            dataAccessLayer.CreateParameters(1);
+            dataAccessLayer.CreateParameters(2);
             dataAccessLayer.AddParameters(0, "ShowDate", dateTime);
             dataAccessLayer.AddParameters(1, "ShowID", ShowID);
             DataSet ds = dataAccessLayer.ExecuteDataSet("spGetBookedSeats", CommandType.StoredProcedure);
-            
-            
+
+
             List<Seat> seats = new List<Seat>();
 
             foreach (DataRow dataRow in ds.Tables[0].Rows)
@@ -166,8 +169,8 @@ namespace Database.Models
                     seat_number = int.Parse(dataRow["SeatNumber"].ToString())
                 });
             }
-            
-            
+
+
             return seats;
         }
     }
