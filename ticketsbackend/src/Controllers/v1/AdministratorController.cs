@@ -74,5 +74,13 @@ namespace ticketsbackend.Controllers.v1
 
             return Ok();
         }
+
+        [HttpPost("~/Hall")]
+        public IActionResult CreateHall([FromBody] Hall hall)
+        {
+            hallDb.createHall(hall);
+
+            return Ok();
+        }
     }
 }
