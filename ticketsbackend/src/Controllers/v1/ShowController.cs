@@ -1,5 +1,6 @@
 using System;
 using Database.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
@@ -27,7 +28,13 @@ namespace ticketsbackend.Controllers.v1
         [HttpGet("{id:int}")]
         public IActionResult GetShow(int id)
         {
-            return Ok(showDb.getShow(id));
+            var cookop = new CookieOptions()
+            {
+                Path = "/", HttpOnly = false, IsEssential = true, Expires = DateTimeOffset.Now.AddMonths(1)
+            };
+            Show show = showDb.getShow(id);
+            Response.Cookies.Append("lastselectedshow", show.title, cookop);
+            return Ok(show);
         }
 
         [HttpGet("~/Theater/{theaterName}")]
