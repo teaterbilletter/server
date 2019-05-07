@@ -21,21 +21,31 @@ namespace Database.Models
         /// <returns></returns>
         public Customer GetCustomer(string customerID)
         {
-            dataAccessLayer.CreateParameters(1);
-            dataAccessLayer.AddParameters(0, "CustomerID", customerID);
-            DataSet ds = dataAccessLayer.ExecuteDataSet("spGetCustomer", CommandType.StoredProcedure);
-
-
-            Customer customer = new Customer
+            Customer customer;
+            try
             {
-                ID = customerID,
-                name = ds.Tables[0].Rows[0]["CustomerName"].ToString(),
-                email = ds.Tables[0].Rows[0]["Mail"].ToString().Trim(),
-                phone = ds.Tables[0].Rows[0]["Phone"]?.ToString(),
-                Address = ds.Tables[0].Rows[0]["Address"]?.ToString(),
-                Gender = ds.Tables[0].Rows[0]["Gender"]?.ToString(),
-                Age = int.Parse(ds.Tables[0].Rows[0]["Age"]?.ToString().Trim())
-            };
+                dataAccessLayer.CreateParameters(1);
+                dataAccessLayer.AddParameters(0, "CustomerID", customerID);
+                DataSet ds = dataAccessLayer.ExecuteDataSet("spGetCustomer", CommandType.StoredProcedure);
+
+
+                customer = new Customer
+                {
+                    ID = customerID,
+                    name = ds.Tables[0].Rows[0]["CustomerName"].ToString(),
+                    email = ds.Tables[0].Rows[0]["Mail"].ToString().Trim(),
+                    phone = ds.Tables[0].Rows[0]["Phone"]?.ToString(),
+                    Address = ds.Tables[0].Rows[0]["Address"]?.ToString(),
+                    Gender = ds.Tables[0].Rows[0]["Gender"]?.ToString(),
+                    Age = int.Parse(ds.Tables[0].Rows[0]["Age"]?.ToString().Trim())
+                };
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return null;
+            }
+
 
             return customer;
         }
@@ -47,6 +57,7 @@ namespace Database.Models
         /// <returns></returns>
         public int CreateCustomer(Customer customer)
         {
+            int affectedRows;
             dataAccessLayer.BeginTransaction();
             try
             {
@@ -59,18 +70,18 @@ namespace Database.Models
                 dataAccessLayer.AddParameters(5, "Gender", customer.Gender);
                 dataAccessLayer.AddParameters(6, "Age", customer.Age);
 
-                int affectedRows = dataAccessLayer.ExecuteQuery("spCreateCustomer", CommandType.StoredProcedure);
+                affectedRows = dataAccessLayer.ExecuteQuery("spCreateCustomer", CommandType.StoredProcedure);
 
                 dataAccessLayer.CommitTransaction();
-
-                return affectedRows;
             }
             catch (Exception e)
             {
                 dataAccessLayer.RollbackTransaction();
                 Console.WriteLine(e);
-                throw;
+                return -1;
             }
+
+            return affectedRows;
         }
 
         /// <summary>
@@ -92,13 +103,13 @@ namespace Database.Models
                 dataAccessLayer.AddParameters(5, "Gender", customer.Gender);
                 dataAccessLayer.AddParameters(6, "Age", customer.Age);
                 int affectedRows = dataAccessLayer.ExecuteQuery("spUpdateCustomer", CommandType.StoredProcedure);
-                
+
                 dataAccessLayer.CommitTransaction();
                 return affectedRows;
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);  
+                Console.WriteLine(e);
                 return -1;
             }
         }
@@ -110,9 +121,21 @@ namespace Database.Models
         /// <returns></returns>
         public int DeleteCustomer(string customerID)
         {
-            dataAccessLayer.CreateParameters(1);
-            dataAccessLayer.AddParameters(0, "CustomerID", customerID);
-            return dataAccessLayer.ExecuteQuery("spDeleteCustomer", CommandType.StoredProcedure);
+            int temp;
+            try
+            {
+                dataAccessLayer.CreateParameters(1);
+                dataAccessLayer.AddParameters(0, "CustomerID", customerID);
+                temp = dataAccessLayer.ExecuteQuery("spDeleteCustomer", CommandType.StoredProcedure);
+                Console.WriteLine(temp);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return 0;
+            }
+
+            return temp;
         }
     }
 }

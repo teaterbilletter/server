@@ -29,7 +29,7 @@ namespace ticketsbackend.Controllers.v1
                 return BadRequest("Invalid client request");
             }
 
-            var log = await CheckUserWithSoap.SoapEnvelope(login.Name, login.Password);
+            var log = await CheckUserWithSoap.BAMCheckUser(login.Name, login.Password);
 
             if (!admins.Contains(log)) return BadRequest("Ikke Administrator");
 
@@ -61,7 +61,7 @@ namespace ticketsbackend.Controllers.v1
                 return BadRequest("Invalid client request");
             }
 
-            var log = await CheckUserWithSoap.SoapEnvelope(login.Name, login.Password);
+            var log = await CheckUserWithSoap.BAMCheckUser(login.Name, login.Password);
 
 
             if (log.Equals("Forkert brugernavn eller adgangskode!"))

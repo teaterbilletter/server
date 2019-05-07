@@ -22,17 +22,28 @@ namespace ticketsbackend.Controllers.v1
         [HttpGet("~/AllShows")]
         public IActionResult GetAllShows()
         {
-            return Ok(showDb.getAllShows());
+            var show = showDb.getAllShows();
+            if (show == null)
+            {
+                return NotFound("Ingen shows fundet");
+            }
+
+            return Ok(show);
         }
 
         [HttpGet("{id:int}")]
         public IActionResult GetShow(int id)
         {
-            var cookop = new CookieOptions()
+            var cookop = new CookieOptions
             {
                 Path = "/", HttpOnly = false, IsEssential = true, Expires = DateTimeOffset.Now.AddMonths(1)
             };
-            Show show = showDb.getShow(id);
+            var show = showDb.getShow(id);
+            if (show == null)
+            {
+                return NotFound($"Showet med id {id} findes ikke");
+            }
+
             Response.Cookies.Append("lastselectedshow", show.title, cookop);
             return Ok(show);
         }
@@ -40,15 +51,22 @@ namespace ticketsbackend.Controllers.v1
         [HttpGet("~/Theater/{theaterName}")]
         public IActionResult GetTheater(string theaterName)
         {
-            return Ok(theaterDb.getTheater(theaterName));
+            var theater = theaterDb.getTheater(theaterName);
+            if (theater == null)
+            {
+                return NotFound($"Theater med navnet {theaterName} findes ikke");
+            }
+
+            return Ok(theater);
         }
 
         [HttpGet("~/GetOccupiedSeats/")]
         public IActionResult GetOccupiedSeats([FromQuery] string dateTime, [FromQuery] int ShowID)
         {
             DateTime date = DateTime.Parse(dateTime);
-            Console.WriteLine(date);
-            return Ok(showDb.getOccupiedSeats(date, ShowID));
+            var getseats = showDb.getOccupiedSeats(date, ShowID);
+            if (getseats == null) return NotFound("Der opstod en fejl ved henting af sæder");
+            return Ok(getseats);
         }
     }
 }

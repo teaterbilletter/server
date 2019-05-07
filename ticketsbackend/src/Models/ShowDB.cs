@@ -46,19 +46,31 @@ namespace Database.Models
             {
                 dataAccessLayer.RollbackTransaction();
                 Console.WriteLine(e);
-                throw;
+                return -1;
             }
         }
 
         public int deleteShowDates(int id)
         {
-            dataAccessLayer.CreateParameters(1);
-            dataAccessLayer.AddParameters(0, "ShowID", id);
-            return dataAccessLayer.ExecuteQuery("spDeleteShowDates", CommandType.StoredProcedure);
+            int temp;
+            try
+            {
+                temp = dataAccessLayer.ExecuteQuery("spDeleteShowDates", CommandType.StoredProcedure);
+                dataAccessLayer.CreateParameters(1);
+                dataAccessLayer.AddParameters(0, "ShowID", id);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return -1;
+            }
+
+            return temp;
         }
 
         public int updateShow(Show show)
         {
+            int affectedRows;
             try
             {
                 dataAccessLayer.BeginTransaction();
@@ -76,100 +88,125 @@ namespace Database.Models
                 dataAccessLayer.AddParameters(5, "Active", show.active);
                 dataAccessLayer.AddParameters(6, "basePrice", show.basePrice);
                 dataAccessLayer.AddParameters(7, "Description", show.description);
-                int affectedRows = dataAccessLayer.ExecuteQuery("spUpdateShow", CommandType.StoredProcedure);
+                affectedRows = dataAccessLayer.ExecuteQuery("spUpdateShow", CommandType.StoredProcedure);
 
                 dataAccessLayer.CommitTransaction();
-
-                return affectedRows;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
+                return -1;
             }
+
+            return affectedRows;
         }
 
         public Show getShow(int id)
         {
-            dataAccessLayer.CreateParameters(1);
-            dataAccessLayer.AddParameters(0, "ShowID", id);
-            DataSet ds = dataAccessLayer.ExecuteDataSet("spGetShow", CommandType.StoredProcedure);
-
-            Show show = new Show
+            try
             {
-                ID = int.Parse(ds.Tables[0].Rows[0]["ID"].ToString()),
-                title = ds.Tables[0].Rows[0]["Title"].ToString(),
-                imgUrl = ds.Tables[0].Rows[0]["ImgUrl"].ToString(),
-                hall = new Hall
+                dataAccessLayer.CreateParameters(1);
+                dataAccessLayer.AddParameters(0, "ShowID", id);
+                DataSet ds = dataAccessLayer.ExecuteDataSet("spGetShow", CommandType.StoredProcedure);
+
+                Show show = new Show
                 {
-                    hallNum = int.Parse(ds.Tables[0].Rows[0]["Hall_ID"].ToString()),
-                    theater = new Theater
+                    ID = int.Parse(ds.Tables[0].Rows[0]["ID"].ToString()),
+                    title = ds.Tables[0].Rows[0]["Title"].ToString(),
+                    imgUrl = ds.Tables[0].Rows[0]["ImgUrl"].ToString(),
+                    hall = new Hall
                     {
-                        address = ds.Tables[0].Rows[0]["Address"].ToString(),
-                        name = ds.Tables[0].Rows[0]["Theater"].ToString()
+                        hallNum = int.Parse(ds.Tables[0].Rows[0]["Hall_ID"].ToString()),
+                        theater = new Theater
+                        {
+                            address = ds.Tables[0].Rows[0]["Address"].ToString(),
+                            name = ds.Tables[0].Rows[0]["Theater"].ToString()
+                        },
+                        rows = int.Parse(ds.Tables[2].Rows[0]["RowCount"].ToString()),
+                        seats = int.Parse(ds.Tables[2].Rows[0]["SeatCount"].ToString())
                     },
-                    rows = int.Parse(ds.Tables[2].Rows[0]["RowCount"].ToString()),
-                    seats = int.Parse(ds.Tables[2].Rows[0]["SeatCount"].ToString())
-                },
-                basePrice = decimal.Parse(ds.Tables[0].Rows[0]["BasePrice"].ToString()),
-                description = ds.Tables[0].Rows[0]["Description"].ToString()
-            };
+                    basePrice = decimal.Parse(ds.Tables[0].Rows[0]["BasePrice"].ToString()),
+                    description = ds.Tables[0].Rows[0]["Description"].ToString()
+                };
 
-            show.dates = new List<DateTime>();
-            foreach (DataRow dr in ds.Tables[1].Rows)
-            {
-                show.dates.Add(DateTime.Parse(dr["ShowDate"].ToString()));
+                show.dates = new List<DateTime>();
+                foreach (DataRow dr in ds.Tables[1].Rows)
+                {
+                    show.dates.Add(DateTime.Parse(dr["ShowDate"].ToString()));
+                }
+
+                return show;
             }
-
-            return show;
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return null;
+            }
         }
 
         public List<Show> getAllShows()
         {
-            DataTable dt = dataAccessLayer.ExecuteDataSet("spGetAllShows", CommandType.StoredProcedure).Tables[0];
             List<Show> shows = new List<Show>();
-
-            foreach (DataRow dr in dt.Rows)
+            try
             {
-                shows.Add(new Show
+                DataTable dt = dataAccessLayer.ExecuteDataSet("spGetAllShows", CommandType.StoredProcedure).Tables[0];
+
+
+                foreach (DataRow dr in dt.Rows)
                 {
-                    ID = int.Parse(dr["ID"].ToString()),
-                    title = dr["Title"].ToString(),
-                    imgUrl = dr["ImgUrl"].ToString(),
-                    description = dr["Description"].ToString(),
-                    hall = new Hall
+                    shows.Add(new Show
                     {
-                        //var Hall_ID
-                        hallNum = int.Parse(dr["ID"].ToString()),
-                        theater = new Theater
+                        ID = int.Parse(dr["ID"].ToString()),
+                        title = dr["Title"].ToString(),
+                        imgUrl = dr["ImgUrl"].ToString(),
+                        description = dr["Description"].ToString(),
+                        hall = new Hall
                         {
-                            address = dr["Address"].ToString(),
-                            name = dr["Theater"].ToString()
+                            //var Hall_ID
+                            hallNum = int.Parse(dr["ID"].ToString()),
+                            theater = new Theater
+                            {
+                                address = dr["Address"].ToString(),
+                                name = dr["Theater"].ToString()
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return null;
+            }
+
 
             return shows;
         }
 
-        public List<Seat> getOccupiedSeats(DateTime dateTime, int ShowID)
+        public List<Seat> getOccupiedSeats(DateTime dateTime, int showID)
         {
-            dataAccessLayer.CreateParameters(2);
-            dataAccessLayer.AddParameters(0, "ShowDate", dateTime);
-            dataAccessLayer.AddParameters(1, "ShowID", ShowID);
-            DataSet ds = dataAccessLayer.ExecuteDataSet("spGetBookedSeats", CommandType.StoredProcedure);
-
-
             List<Seat> seats = new List<Seat>();
-
-            foreach (DataRow dataRow in ds.Tables[0].Rows)
+            try
             {
-                seats.Add(new Seat
+                dataAccessLayer.CreateParameters(2);
+                dataAccessLayer.AddParameters(0, "ShowDate", dateTime);
+                dataAccessLayer.AddParameters(1, "ShowID", showID);
+                DataSet ds = dataAccessLayer.ExecuteDataSet("spGetBookedSeats", CommandType.StoredProcedure);
+
+
+                foreach (DataRow dataRow in ds.Tables[0].Rows)
                 {
-                    row_number = int.Parse(dataRow["RowNumber"].ToString()),
-                    seat_number = int.Parse(dataRow["SeatNumber"].ToString())
-                });
+                    seats.Add(new Seat
+                    {
+                        row_number = int.Parse(dataRow["RowNumber"].ToString()),
+                        seat_number = int.Parse(dataRow["SeatNumber"].ToString())
+                    });
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return null;
             }
 
 

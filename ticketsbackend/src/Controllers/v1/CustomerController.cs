@@ -20,15 +20,10 @@ namespace ticketsbackend.Controllers.v1
         [HttpPut]
         public IActionResult UpdateCustomer([FromBody] Customer customer)
         {
-            if (customer == null)
-            {
-                return NotFound();
-            }
-
             int temp = customerDb.UpdateCustomer(customer);
             if (temp == -1)
             {
-                return NotFound();
+                return NotFound($"Kunden med navn {customer.name} blev ikke fundet og kan derfor ikke opdateres.");
             }
 
 
@@ -39,6 +34,10 @@ namespace ticketsbackend.Controllers.v1
         public IActionResult GetCustomer(string id)
         {
             Customer customer = customerDb.GetCustomer(id);
+            if (customer == null)
+            {
+                return NotFound($"Ingen kunde med id {id} fundet");
+            }
 
             return Ok(customer);
         }
@@ -52,7 +51,11 @@ namespace ticketsbackend.Controllers.v1
                 return BadRequest("Ingen kunde data indtastet");
             }
 
-            customerDb.CreateCustomer(customer);
+            var newcust = customerDb.CreateCustomer(customer);
+            if (newcust == -1)
+            {
+                return BadRequest("Der opstod en database fejl under indlæsning af kunde, tjek formattet");
+            }
 
 
             return Ok();

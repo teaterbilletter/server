@@ -9,7 +9,7 @@ namespace ticketsbackend.SoapService
 {
     public class CheckUserWithSoap
     {
-        public static async Task<string> SoapEnvelope(string name, string password)
+        public static async Task<string> BAMCheckUser(string name, string password)
         {
             if (name.Contains(">") || name.Contains("<") || password.Contains(">") || password.Contains("<"))
             {

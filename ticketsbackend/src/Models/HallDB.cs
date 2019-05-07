@@ -8,17 +8,18 @@ namespace ticketsbackend.Models
     public class HallDB
     {
         private DataAccessLayer.DataAccessLayerBaseClass dataAccessLayer;
+
         public HallDB(IConfiguration configuration)
         {
             dataAccessLayer = DataAccessLayer.DataAccessLayerFactory.GetDataAccessLayer(configuration);
         }
+
         public int createHall(Hall hall)
         {
-            
             try
             {
                 dataAccessLayer.BeginTransaction();
-                
+
                 dataAccessLayer.CreateParameters(4);
                 dataAccessLayer.AddParameters(0, "HallNum", hall.hallNum);
                 dataAccessLayer.AddParameters(1, "Theater", hall.theater.name);
@@ -26,7 +27,7 @@ namespace ticketsbackend.Models
                 dataAccessLayer.AddParameters(3, "RowCount", hall.rows);
                 int affectedRows = dataAccessLayer.ExecuteQuery("spCreateHall", CommandType.StoredProcedure);
 
-                
+
                 dataAccessLayer.CommitTransaction();
                 return affectedRows;
             }
@@ -34,7 +35,7 @@ namespace ticketsbackend.Models
             {
                 dataAccessLayer.RollbackTransaction();
                 Console.WriteLine(e);
-                throw;
+                return -1;
             }
         }
     }

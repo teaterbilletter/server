@@ -1,3 +1,4 @@
+using System.Linq;
 using Database.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,14 +21,17 @@ namespace ticketsbackend.Controllers.v1
         [HttpGet("{bookingid:int}")]
         public IActionResult GetBooking(int bookingid)
         {
-            return Ok(bookingDb.GetBooking(bookingid));
+            var booking = bookingDb.GetBooking(bookingid);
+            if (booking == null) return NotFound($"Ingen booking med id {bookingid} fundet");
+
+            return Ok(booking);
         }
 
 
         [HttpDelete("{bookingid:int}")]
         public IActionResult DeleteBooking(int bookingid)
         {
-            bookingDb.DeleteBooking(bookingid);
+            if (bookingDb.DeleteBooking(bookingid) == -1) return NotFound($"Ingen booking med id {bookingid} fundet");
 
             return Ok();
         }
@@ -38,6 +42,7 @@ namespace ticketsbackend.Controllers.v1
             int bookingID = bookingDb.CreateBooking(booking);
 
             Booking createdBooking = bookingDb.GetBooking(bookingID);
+            if (createdBooking == null) return NotFound("Der opstod en databasefejl");
 
 
             return Ok(createdBooking);
@@ -46,13 +51,20 @@ namespace ticketsbackend.Controllers.v1
         [HttpGet("~/Bookings/{customerid}")]
         public IActionResult GetBookings(string customerid)
         {
-            return Ok(bookingDb.GetCustomerBookings(customerid));
+            var bookings = bookingDb.GetCustomerBookings(customerid);
+            if (bookings == null || !bookings.Any()) return NotFound("Ingen bookings fundet for denne kunde");
+
+
+            return Ok(bookings);
         }
 
         [HttpPost("~/Bookings")]
         public IActionResult MakeTempBooking([FromBody] Booking booking)
         {
-            return Ok(bookingDb.MakeTempBooking(booking));
+            var tempb = bookingDb.MakeTempBooking(booking);
+            if (tempb == null) return NotFound("Der opstod en databasefejl");
+
+            return Ok(tempb);
         }
     }
 }
