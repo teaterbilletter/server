@@ -41,11 +41,10 @@ namespace ticketsbackend
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-
                         ValidIssuer = "http://+:5000",
                         ValidAudience = "http://+",
                         IssuerSigningKey =
-                            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+                            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
                     };
                 });
 
@@ -72,10 +71,9 @@ namespace ticketsbackend
                     Description = "Ticketordering by date"
                 });
             });
-            //  services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+
             services.Configure<CookiePolicyOptions>(options =>
             {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
@@ -83,7 +81,7 @@ namespace ticketsbackend
             services.AddMvc();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
@@ -96,10 +94,11 @@ namespace ticketsbackend
                 app.UsePathBase(pathBase);
             }
 
+            //Husk only allow Origin for specifikke 
             app.UseCors(builder =>
-                builder.WithOrigins("http://localhost:4200", "https://localhost:4443").AllowAnyOrigin().AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowCredentials());
+                builder.AllowAnyOrigin().AllowAnyHeader()
+                    .AllowAnyMethod());
+            // .AllowCredentials());
             app.UseHsts();
             app.UseCookiePolicy();
             app.UseSwagger()
@@ -109,6 +108,7 @@ namespace ticketsbackend
                     c.RoutePrefix = string.Empty;
                 });
             app.UseAuthentication();
+
             app.UseMvcWithDefaultRoute();
             app.UseMvc();
         }

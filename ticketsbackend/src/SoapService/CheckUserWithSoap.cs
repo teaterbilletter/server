@@ -13,8 +13,11 @@ namespace ticketsbackend.SoapService
         {
             if (name.Contains(">") || name.Contains("<") || password.Contains(">") || password.Contains("<"))
             {
+                Console.WriteLine(name);
                 return "Kodeord eller Brugernavn indeholder ikke tilladte tegn";
             }
+
+            Console.WriteLine(name);
 
             string soapString = @"<?xml version=""1.0"" encoding=""utf-8""?>
           <soap:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" 
@@ -38,7 +41,7 @@ namespace ticketsbackend.SoapService
 
 
             var xml = XDocument.Parse(responseXml);
-            Console.WriteLine(xml);
+
 
             // Parse Soap Response
             var soapResponse = xml.Descendants().Where(x => x.Name.LocalName == "return").Select(x => new SoapResponse

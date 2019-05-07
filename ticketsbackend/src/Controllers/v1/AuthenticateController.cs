@@ -21,8 +21,8 @@ namespace ticketsbackend.Controllers.v1
         };
 
 
-        [HttpPost, Route("~/Login")]
-        public async Task<IActionResult> Login([FromBody] Login login)
+        [HttpPost, Route("~/AdminLogin")]
+        public async Task<IActionResult> AdminLogin([FromBody] Login login)
         {
             if (login == null)
             {
@@ -30,29 +30,59 @@ namespace ticketsbackend.Controllers.v1
             }
 
             var log = await CheckUserWithSoap.SoapEnvelope(login.Name, login.Password);
+
+            if (!admins.Contains(log)) return BadRequest("Ikke Administrator");
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Role, "Admin")
+            };
+
+            var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Startup.key));
+            var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
+
+            var tokeOptions = new JwtSecurityToken(
+                "http://+:5000",
+                "http://+",
+                claims,
+                expires: DateTime.Now.AddHours(1),
+                signingCredentials: signinCredentials
+            );
+
+            var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
+            return Ok(new LoginResult(log, tokenString));
+        }
+
+        [HttpPost, Route("~/UserLogin")]
+        public async Task<IActionResult> UserLogin([FromBody] Login login)
+        {
+            if (login == null)
+            {
+                return BadRequest("Invalid client request");
+            }
+
+            var log = await CheckUserWithSoap.SoapEnvelope(login.Name, login.Password);
+
+
+            if (log.Equals("Forkert brugernavn eller adgangskode!"))
+                return BadRequest("Forkert brugernavn eller password!");
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, login.Name)
             };
+            var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Startup.key));
+            var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
 
-            if (admins.Contains(log))
-            {
-                var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Startup.key));
-                var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
+            var tokeOptions = new JwtSecurityToken(
+                "http://+:5000",
+                "http://+",
+                claims,
+                expires: DateTime.Now.AddHours(1),
+                signingCredentials: signinCredentials
+            );
 
-                var tokeOptions = new JwtSecurityToken(
-                    "http://+:5000",
-                    "http://+",
-                    claims,
-                    expires: DateTime.Now.AddHours(1),
-                    signingCredentials: signinCredentials
-                );
-
-                var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
-                return Ok(new LoginResult(log, tokenString));
-            }
-
-            return BadRequest("Forkert brugernavn eller password");
+            var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
+            return Ok(new LoginResult(log, tokenString));
         }
     }
 }

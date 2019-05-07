@@ -6,7 +6,7 @@ using ticketsbackend.Models;
 
 namespace ticketsbackend.Controllers.v1
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [Route("/[controller]")]
     public class AdministratorController : Controller
     {
