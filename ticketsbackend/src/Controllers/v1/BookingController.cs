@@ -44,7 +44,7 @@ namespace ticketsbackend.Controllers.v1
         }
 
         [HttpGet("~/Bookings/{customerid}")]
-        public IActionResult GetBookings(int customerid)
+        public IActionResult GetBookings(string customerid)
         {
             return Ok(bookingDb.GetCustomerBookings(customerid));
         }

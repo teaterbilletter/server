@@ -36,7 +36,7 @@ namespace Database.Models
             Booking b = new Booking
             {
                 bookingID = bookingID,
-                customerID = int.Parse(ds.Tables[0].Rows[0]["Customer_ID"].ToString().Trim()),
+                customerID = ds.Tables[0].Rows[0]["Customer_ID"].ToString().Trim(),
                 date = DateTime.Parse(ds.Tables[0].Rows[0]["BookedDate"].ToString()),
                 show = new Show
                 {
@@ -70,7 +70,7 @@ namespace Database.Models
         /// </summary>
         /// <param name="customerID"></param>
         /// <returns></returns>
-        public List<Booking> GetCustomerBookings(int customerID)
+        public List<Booking> GetCustomerBookings(string customerID)
         {
             List<Booking> bookings = new List<Booking>();
 

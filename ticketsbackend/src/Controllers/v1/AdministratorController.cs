@@ -43,7 +43,7 @@ namespace ticketsbackend.Controllers.v1
             return Ok();
         }
 
-        [HttpDelete("~/ShowDates/{title}")]
+        [HttpDelete("~/ShowDates")]
         public IActionResult DeleteShowDates(int id)
         {
             showDb.deleteShowDates(id);
@@ -51,8 +51,8 @@ namespace ticketsbackend.Controllers.v1
             return Ok();
         }
 
-        [HttpDelete("~/Customer/{id:int}")]
-        public IActionResult DeleteCustomer(int id)
+        [HttpDelete("~/Customer/{id}")]
+        public IActionResult DeleteCustomer(string id)
         {
             customerDb.DeleteCustomer(id);
 

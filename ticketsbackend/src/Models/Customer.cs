@@ -2,7 +2,7 @@ namespace Database.Models
 {
     public class Customer
     {
-        public int ID { get; set; }
+        public string ID { get; set; }
         public string name { get; set; }
         public string email { get; set; }
         public string phone { get; set; }
@@ -10,7 +10,7 @@ namespace Database.Models
         public string Gender { get; set; }
         public int Age { get; set; }
 
-        public Customer(int id, string name, string email, string phone, string address, string gender, int age)
+        public Customer(string id, string name, string email, string phone, string address, string gender, int age)
         {
             ID = id;
             this.name = name;

@@ -208,7 +208,7 @@ namespace Database.DatabaseConnector
                     // open connection
                     connection.Open();
                     // begin a database transaction with a read committed isolation level
-                    transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted);
+                    transaction = connection.BeginTransaction(IsolationLevel.RepeatableRead);
                 }
                 catch
                 {

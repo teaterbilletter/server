@@ -35,8 +35,8 @@ namespace ticketsbackend.Controllers.v1
             return Ok();
         }
 
-        [HttpGet("{id:int}")]
-        public IActionResult GetCustomer(int id)
+        [HttpGet("{id}")]
+        public IActionResult GetCustomer(string id)
         {
             Customer customer = customerDb.GetCustomer(id);
 

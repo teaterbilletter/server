@@ -12,10 +12,12 @@ namespace ticketsbackend.Models
     {
         [Required] public string Response;
         [Required] public string Token;
+        [Required] public string Username;
 
-        public LoginResult(string response, string token)
+        public LoginResult(string response, string token, string username)
         {
             Token = token;
+            Username = username;
             Response = response;
         }
     }

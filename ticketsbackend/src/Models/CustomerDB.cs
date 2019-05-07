@@ -19,7 +19,7 @@ namespace Database.Models
         /// </summary>
         /// <param name="customerID"></param>
         /// <returns></returns>
-        public Customer GetCustomer(int customerID)
+        public Customer GetCustomer(string customerID)
         {
             dataAccessLayer.CreateParameters(1);
             dataAccessLayer.AddParameters(0, "CustomerID", customerID);
@@ -50,13 +50,14 @@ namespace Database.Models
             dataAccessLayer.BeginTransaction();
             try
             {
-                dataAccessLayer.CreateParameters(6);
-                dataAccessLayer.AddParameters(0, "CustomerName", customer.name);
-                dataAccessLayer.AddParameters(1, "Email", customer.email);
-                dataAccessLayer.AddParameters(2, "Phone", customer.phone);
-                dataAccessLayer.AddParameters(3, "Address", customer.Address);
-                dataAccessLayer.AddParameters(4, "Gender", customer.Gender);
-                dataAccessLayer.AddParameters(5, "Age", customer.Age);
+                dataAccessLayer.CreateParameters(7);
+                dataAccessLayer.AddParameters(0, "ID", customer.ID);
+                dataAccessLayer.AddParameters(1, "CustomerName", customer.name);
+                dataAccessLayer.AddParameters(2, "Email", customer.email);
+                dataAccessLayer.AddParameters(3, "Phone", customer.phone);
+                dataAccessLayer.AddParameters(4, "Address", customer.Address);
+                dataAccessLayer.AddParameters(5, "Gender", customer.Gender);
+                dataAccessLayer.AddParameters(6, "Age", customer.Age);
 
                 int affectedRows = dataAccessLayer.ExecuteQuery("spCreateCustomer", CommandType.StoredProcedure);
 
@@ -107,7 +108,7 @@ namespace Database.Models
         /// </summary>
         /// <param name="customerID"></param>
         /// <returns></returns>
-        public int DeleteCustomer(int customerID)
+        public int DeleteCustomer(string customerID)
         {
             dataAccessLayer.CreateParameters(1);
             dataAccessLayer.AddParameters(0, "CustomerID", customerID);

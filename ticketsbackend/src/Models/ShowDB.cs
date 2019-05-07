@@ -22,7 +22,7 @@ namespace Database.Models
             {
                 dataAccessLayer.BeginTransaction();
 
-                dataAccessLayer.CreateParameters(5);
+                dataAccessLayer.CreateParameters(6);
                 dataAccessLayer.AddParameters(0, "Title", show.title);
                 dataAccessLayer.AddParameters(1, "ImgUrl", show.imgUrl);
                 dataAccessLayer.AddParameters(2, "Hall_ID", show.hall.hallNum);
@@ -34,6 +34,7 @@ namespace Database.Models
 
                 dataAccessLayer.AddParameters(3, "Dates", dates);
                 dataAccessLayer.AddParameters(4, "basePrice", show.basePrice);
+                dataAccessLayer.AddParameters(5, "description", show.description);
                 int affectedRows = dataAccessLayer.ExecuteQuery("spCreateShow", CommandType.StoredProcedure);
 
 
@@ -61,19 +62,20 @@ namespace Database.Models
             try
             {
                 dataAccessLayer.BeginTransaction();
-                dataAccessLayer.CreateParameters(7);
+                dataAccessLayer.CreateParameters(8);
                 dataAccessLayer.AddParameters(0, "ShowID", show.ID);
                 dataAccessLayer.AddParameters(1, "Title", show.title);
                 dataAccessLayer.AddParameters(2, "ImgUrl", show.imgUrl);
                 dataAccessLayer.AddParameters(3, "Hall_ID", show.hall.hallNum);
 
                 List<string> date_strings = new List<string>();
-                show.dates.ForEach(d => date_strings.Add(d.ToString("yyyy-MM-dd hh:mm:ss")));
+                show.dates.ForEach(d => date_strings.Add(d.ToString("yyyy-MM-dd HH:mm:ss")));
                 string dates = string.Join(",", date_strings);
 
                 dataAccessLayer.AddParameters(4, "Dates", dates);
                 dataAccessLayer.AddParameters(5, "Active", show.active);
                 dataAccessLayer.AddParameters(6, "basePrice", show.basePrice);
+                dataAccessLayer.AddParameters(7, "Description", show.description);
                 int affectedRows = dataAccessLayer.ExecuteQuery("spUpdateShow", CommandType.StoredProcedure);
 
                 dataAccessLayer.CommitTransaction();

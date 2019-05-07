@@ -49,7 +49,7 @@ namespace ticketsbackend.Controllers.v1
                 );
 
                 var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
-                return Ok(new LoginResult(log, tokenString));
+                return Ok(new LoginResult(log, tokenString, login.Name));
             }
 
             return BadRequest("Forkert brugernavn eller password");
