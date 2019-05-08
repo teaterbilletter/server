@@ -212,5 +212,33 @@ namespace Database.Models
 
             return seats;
         }
+        
+        public List<DateTime> getAvailableDates(int showID, int seatStart, int seatEnd, int rowNumber)
+        {
+            List<DateTime> dates = new List<DateTime>();
+            try
+            {
+                dataAccessLayer.CreateParameters(4);
+                dataAccessLayer.AddParameters(0, "ShowID", showID);
+                dataAccessLayer.AddParameters(1, "RowNumber", rowNumber);
+                dataAccessLayer.AddParameters(2, "SeatStart", seatStart);
+                dataAccessLayer.AddParameters(3, "seatEnd", seatEnd);
+                DataSet ds = dataAccessLayer.ExecuteDataSet("spGetDatesBySeats", CommandType.StoredProcedure);
+
+
+                foreach (DataRow dataRow in ds.Tables[0].Rows)
+                {
+                    dates.Add(DateTime.Parse(dataRow.ToString()));
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return null;
+            }
+
+
+            return dates;
+        }
     }
 }

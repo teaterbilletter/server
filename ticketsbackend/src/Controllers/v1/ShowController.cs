@@ -68,5 +68,15 @@ namespace ticketsbackend.Controllers.v1
             if (getseats == null) return NotFound("Der opstod en fejl ved henting af sæder");
             return Ok(getseats);
         }
+        
+        [HttpGet("~/GetAvailableDates/")]
+        public IActionResult GetAvailableDates([FromQuery] int ShowID, [FromQuery] int seatStart, [FromQuery] int seatEnd, [FromQuery] int rowNumber)
+        {
+            var dates = showDb.getAvailableDates(ShowID, seatStart, seatEnd, rowNumber);
+            
+            if (dates == null) return NotFound("Der opstod en fejl ved henting af sæder");
+            
+            return Ok(dates);
+        }
     }
 }
