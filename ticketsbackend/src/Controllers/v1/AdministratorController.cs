@@ -1,3 +1,4 @@
+using System;
 using System.Net;
 using System.Net.Http;
 using Database.Models;
@@ -59,9 +60,9 @@ namespace ticketsbackend.Controllers.v1
         }
 
         [HttpDelete("~/ShowDates")]
-        public IActionResult DeleteShowDates(int id)
+        public IActionResult DeleteShowDates(int id, DateTime dateTime)
         {
-            if (showDb.deleteShowDates(id) == -1)
+            if (showDb.deleteShowDate(id, dateTime) == -1)
             {
                 return BadRequest($"Showet med id {id} findes ikke");
             }
