@@ -50,14 +50,15 @@ namespace Database.Models
             }
         }
 
-        public int deleteShowDates(int id)
+        public int deleteShowDate(int showID, DateTime datetime)
         {
             int temp;
             try
             {
+                dataAccessLayer.CreateParameters(2);
+                dataAccessLayer.AddParameters(0, "ShowID", showID);
+                dataAccessLayer.AddParameters(1, "showdate", datetime);
                 temp = dataAccessLayer.ExecuteQuery("spDeleteShowDates", CommandType.StoredProcedure);
-                dataAccessLayer.CreateParameters(1);
-                dataAccessLayer.AddParameters(0, "ShowID", id);
             }
             catch (Exception e)
             {
