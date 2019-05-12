@@ -229,7 +229,7 @@ namespace Database.Models
 
                 foreach (DataRow dataRow in ds.Tables[0].Rows)
                 {
-                    dates.Add(DateTime.Parse(dataRow.ToString()));
+                    dates.Add(DateTime.Parse(dataRow["ShowDate"].ToString()));
                 }
             }
             catch (Exception e)
