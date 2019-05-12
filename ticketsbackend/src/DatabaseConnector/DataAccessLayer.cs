@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Data;
+using System.Data.Common;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
 
@@ -11,6 +12,9 @@ namespace Database.DatabaseConnector
         public static string ConnectionString;
         public static string DataProviderTypeString;
 
+        /// <summary>
+        /// Contains data provider types. Add new provider types here.
+        /// </summary>
         public enum DataProviderType
         {
             Mysql
@@ -18,11 +22,6 @@ namespace Database.DatabaseConnector
 
         public abstract class DataAccessLayerBaseClass
         {
-            protected DataAccessLayerBaseClass()
-            {
-            }
-
-
             private string strConnectionString;
 
             private IDataParameter[] parameters = null;
@@ -34,7 +33,7 @@ namespace Database.DatabaseConnector
 
             public int CommandTimeout = 15; //Seconds
 
-            [Description("Property for the connection string")]
+            [Description("Connection string")]
             public string ConnectionString
             {
                 get
@@ -44,7 +43,7 @@ namespace Database.DatabaseConnector
 
                     return strConnectionString;
                 }
-                set { strConnectionString = value; }
+                set => strConnectionString = value;
             }
 
 
@@ -71,7 +70,7 @@ namespace Database.DatabaseConnector
                 return idbParams;
             }
 
-            [Description("Creates parameters to pass to a procedure")]
+            [Description("Creates parameters")]
             public void CreateParameters(int count)
             {
                 DataProviderType dataProvider = (DataProviderType) Enum.Parse(typeof(DataProviderType),
@@ -80,47 +79,20 @@ namespace Database.DatabaseConnector
                 parameters = GetParameters(dataProvider, count);
             }
 
-            [Description("Adds parameter to pass to a procedure")]
+            [Description("Adds parameter")]
             public void AddParameters(int index, string paramName, object objValue)
             {
                 if (index < parameters.Length)
                 {
                     parameters[index] = new MySqlParameter(paramName, objValue == null ? DBNull.Value : objValue);
-                    //idbParameters[index].ParameterName = paramName;
-                    //idbParameters[index].Value = objValue == null ? DBNull.Value : objValue;
                 }
-            }
-
-            [Description("Adds parameter to pass to a procedure")]
-            public void AddParameters(int index, MySqlParameter parameter)
-            {
-                if (index < parameters.Length)
-                {
-                    parameters[index] = parameter;
-                }
-            }
-
-            [Description("Adds parameter to pass to a procedure on the next available space in the parameter array")]
-            public void AddParameters(MySqlParameter parameter)
-            {
-                for (int i = 0; i < parameters.Length; i++)
-                {
-                    if (parameters[i] == null)
-                    {
-                        parameters[i] = parameter;
-                        return;
-                    }
-                }
-
-                throw new Exception("Parameter collection cannot contain anymore parameters");
             }
 
             #endregion
 
 
             /// <summary>
-            /// This method opens (if necessary) and assigns a connection, transaction, command type and parameters 
-            /// to the provided command.
+            /// Prepares a command to access database.
             /// </summary>
             private void PrepareCommand(CommandType commandType, string commandText)
             {
@@ -161,7 +133,7 @@ namespace Database.DatabaseConnector
                             command.Parameters.Add(param);
                     }
                 }
-                catch (MySqlException)
+                catch (DbException)
                 {
                     throw;
                 }
@@ -173,19 +145,10 @@ namespace Database.DatabaseConnector
 
             #region Abstract Methods
 
-            /// <summary>
-            /// Data provider specific implementation for accessing relational databases.
-            /// </summary>
             internal abstract IDbConnection GetDataProviderConnection();
 
-            /// <summary>
-            /// Data provider specific implementation for executing SQL statement while connected to a data source.
-            /// </summary>
             internal abstract IDbCommand GetDataProviderCommand();
 
-            /// <summary>
-            /// Data provider specific implementation for filling the DataSet.
-            /// </summary>
             internal abstract IDbDataAdapter GetDataProviderDataAdapter();
 
             #endregion
@@ -194,7 +157,7 @@ namespace Database.DatabaseConnector
 
             #region Database Transaction
 
-            [Description("Iniciate the transaction")]
+            [Description("Starts a transaction")]
             public void BeginTransaction()
             {
                 if (transaction != null)
@@ -218,7 +181,7 @@ namespace Database.DatabaseConnector
                 }
             }
 
-            [Description("Commit the transaction")]
+            [Description("Commits a transaction")]
             public void CommitTransaction()
             {
                 if (transaction == null)
@@ -242,9 +205,8 @@ namespace Database.DatabaseConnector
                 }
             }
 
-            /// <summary>
-            /// Rolls back a transaction from a pending state.
-            /// </summary>
+
+            [Description("Rolls back a transaction")]
             public void RollbackTransaction()
             {
                 if (transaction == null)
@@ -286,7 +248,7 @@ namespace Database.DatabaseConnector
 
                     return dr;
                 }
-                catch (MySqlException ex)
+                catch (DbException ex)
                 {
                     if (transaction == null)
                     {
@@ -328,7 +290,7 @@ namespace Database.DatabaseConnector
                     //return the dataset
                     return ds;
                 }
-                catch (MySqlException ex)
+                catch (DbException ex)
                 {
                     if (transaction == null)
                         connection.Close();
@@ -369,7 +331,7 @@ namespace Database.DatabaseConnector
                     // return no of affected records
                     return intAffectedRows;
                 }
-                catch (MySqlException ex)
+                catch (DbException ex)
                 {
                     if (transaction != null)
                     {
@@ -399,9 +361,8 @@ namespace Database.DatabaseConnector
 
             #region ExecuteScalar
 
-            /// <summary>
-            /// Executes a stored procedure, and returns the first column of the first row in the resultset returned by the query. Extra columns or rows are ignored.
-            /// </summary>
+            
+            [Description("Executes a stored procedure, and returns the first column of the first row in the resultset returned by the query")]
             public object ExecuteScalar(string commandText, CommandType commandType)
             {
                 try
@@ -418,7 +379,7 @@ namespace Database.DatabaseConnector
                         // return null instead of dbnull value
                         return null;
                 }
-                catch (MySqlException ex)
+                catch (DbException ex)
                 {
                     if (transaction != null)
                         RollbackTransaction();
@@ -447,24 +408,14 @@ namespace Database.DatabaseConnector
         }
 
         /// <summary>
-        /// Loads different data access layer provider depending on the configuration settings file or the caller defined data provider type.
+        /// Create the data acces layer defined in appsettings
         /// </summary>
         public sealed class DataAccessLayerFactory
         {
-            /// <summary>
-            /// Since this class provides only static methods, make the default constructor private to prevent 
-            /// instances from being created with "new DataAccessLayerFactory()"
-            /// </summary>
             private DataAccessLayerFactory()
             {
             }
 
-            /// <summary>
-            /// Constructs a data access layer data provider based on application configuration settings.
-            /// Application configuration file must contain two keys: 
-            ///		1. "DataProviderType" key, with one of the DataProviderType enumerator.
-            ///		2. "ConnectionString" key, holds the database connection string.
-            /// </summary>
             public static DataAccessLayerBaseClass GetDataAccessLayer(IConfiguration configuration)
             {
                 ConnectionString = configuration.GetSection("ConnectionStrings")["ConnectionString"];
@@ -472,7 +423,7 @@ namespace Database.DatabaseConnector
                 // Make sure application configuration file contains required configuration keys
                 if (DataProviderTypeString == null || ConnectionString == null)
                     throw new ArgumentNullException(
-                        "Please specify a 'DataProviderType' and 'ConnectionString' configuration keys in the application configuration file.");
+                        "Please specify a 'DataProviderType' and 'ConnectionString' configuration keys in appsettings.json.");
 
                 DataProviderType dataProvider;
 
@@ -494,34 +445,13 @@ namespace Database.DatabaseConnector
                     dataProvider,
                     ConnectionString);
             }
-
-            /// <summary>
-            /// Constructs a data access layer based on caller specific data provider.
-            /// Caller of this method must provide the database connection string through ConnectionString property.
-            /// </summary>
-            public static DataAccessLayerBaseClass GetDataAccessLayer(DataProviderType dataProviderType)
-            {
-                return GetDataAccessLayer(dataProviderType, null);
-            }
-
-            /// <summary>
-            /// Constructs a data access layer data provider.
-            /// </summary>
+            
             public static DataAccessLayerBaseClass GetDataAccessLayer(DataProviderType dataProviderType,
                 string connectionString)
             {
                 // construct specific data access provider class
                 switch (dataProviderType)
                 {
-                    //case DataProviderType.OleDb:
-                    //    return new OleDbDataAccessLayer(connectionString);
-
-                    //case DataProviderType.Odbc:
-                    //    return new OdbcDataAccessLayer(connectionString);
-
-                    //case DataProviderType.Oracle:
-                    //    return new OracleDataAccessLayer(connectionString);
-
                     case DataProviderType.Mysql:
                         return new MySqlDataAccessLayer(connectionString);
 
