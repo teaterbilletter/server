@@ -5,6 +5,8 @@ using System.Data.Common;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
 
+// This class is created with inspiration from work and from 
+// http://aspalliance.com/articleViewer.aspx?aId=837&pId=-1
 namespace Database.DatabaseConnector
 {
     public class DataAccessLayer
